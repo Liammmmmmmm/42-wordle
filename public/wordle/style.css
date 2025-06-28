@@ -108,3 +108,23 @@ h1 {
 .key.backspace {
 	width: 61px;
 }
+
+@keyframes subtle-bounce {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-4px); }
+}
+
+.tile-bounce {
+	animation: subtle-bounce 0.15s ease-out;
+}
+
+
+@keyframes shake-delete {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-2px); }
+	75% { transform: translateX(2px); }
+}
+
+.tile-delete {
+	animation: shake-delete 0.15s ease-in-out;
+}
