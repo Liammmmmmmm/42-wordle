@@ -12,41 +12,57 @@ function isalpha(ch) {
 }
 
 function setKeyboardTileColor(key, keyState) {
-    const buttons = document.querySelectorAll('.key');
+	const buttons = document.querySelectorAll('.key');
 
-    let targetButton = null;
-    buttons.forEach(button => {
-        if (button.textContent.toUpperCase() === key.toUpperCase()) {
-            targetButton = button;
-        }
-    });
+	let targetButton = null;
+	buttons.forEach(button => {
+		if (button.textContent.toUpperCase() === key.toUpperCase()) {
+			targetButton = button;
+		}
+	});
 
-    if (!targetButton) return ;
+	if (!targetButton) return ;
 
-    if (targetButton.classList.contains('correct')) {
-        return ;
-    }
-    if (targetButton.classList.contains('present') && keyState === 'absent') {
-        return ;
-    }
-    targetButton.classList.remove('absent', 'present', 'correct');
-    targetButton.classList.add(keyState);
+	if (targetButton.classList.contains('correct')) {
+		return ;
+	}
+	if (targetButton.classList.contains('present') && keyState === 'absent') {
+		return ;
+	}
+	targetButton.classList.remove('absent', 'present', 'correct');
+	targetButton.classList.add(keyState);
 }
 
-function toast_error(error) {
-	Toastify({
-		text: error || "An error occured",
-		duration: 5000,
-		close: true,
-		gravity: "top",
-		position: "center",
-		stopOnFocus: true,
-		style: {
-			background: "#bd3030",
-		},
-	}).showToast();
-	pause_event = false;
+function shakeCurrentRow() {
+    for (let x = 1; x <= 5; x++) {
+        const tile = document.querySelector(`#wordle-${position.y}-${x}`);
+        tile.classList.remove('tile-delete');
+        void tile.offsetWidth;
+        tile.classList.add('tile-delete');
+        setTimeout(() => {
+            tile.classList.remove('tile-delete');
+        }, 150);
+    }
+    setTimeout(() => {
+        pause_event = false;
+    }, 150);
 }
+
+// function toast_error(error) {
+// 	Toastify({
+// 		text: error || "An error occured",
+// 		duration: 5000,
+// 		close: true,
+// 		gravity: "top",
+// 		position: "center",
+// 		stopOnFocus: true,
+// 		style: {
+// 			background: "#bd3030",
+// 		},
+// 	}).showToast();
+
+// 	pause_event = false;
+// }
 
 function toast_success(msg) {
 	Toastify({
@@ -62,10 +78,29 @@ function toast_success(msg) {
 	}).showToast();
 }
 
-function setLetter(pos, letter)
-{
-	document.querySelector(`#wordle-${pos.y}-${pos.x} .front`).innerText = letter;
-	document.querySelector(`#wordle-${pos.y}-${pos.x} .back`).innerText = letter;
+function setLetter(pos, letter) {
+	const tile = document.querySelector(`#wordle-${pos.y}-${pos.x}`);
+
+	tile.querySelector('.front').innerText = letter;
+	tile.querySelector('.back').innerText = letter;
+
+	if (letter) {
+		tile.classList.remove('tile-bounce');
+		void tile.offsetWidth;
+		tile.classList.add('tile-bounce');
+
+		setTimeout(() => {
+			tile.classList.remove('tile-bounce');
+		}, 150);
+	} else {
+		tile.classList.remove('tile-delete');
+		void tile.offsetWidth;
+		tile.classList.add('tile-delete');
+
+		setTimeout(() => {
+			tile.classList.remove('tile-delete');
+		}, 150);
+	}
 }
 
 function getLetter(pos)
@@ -94,10 +129,15 @@ function keyaction(key) {
 	}
 	else if (key == "Enter")
 	{
-		if (position.x != 6)
-			return  (toast_error("The word should be 5 letters long"));
-		if (position.y > 6)
-			return  (toast_error("The game is over !"));
+		// if (position.x != 6)
+			// return  (toast_error("The word should be 5 letters long"));
+		if (position.x != 6) {
+			pause_event = true;
+			shakeCurrentRow();
+			return ;
+		}
+		// if (position.y > 6)
+		// 	return (toast_error("The game is over !"));
 
 		pause_event = true;
 		const word = `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`;
@@ -133,7 +173,7 @@ function keyaction(key) {
 		})
 		.catch(function (error) {
 			console.log(error);
-			toast_error(error.response.data.details);
+			shakeCurrentRow();
 		})
 	}
 }
