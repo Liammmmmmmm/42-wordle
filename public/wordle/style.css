@@ -65,32 +65,35 @@ h1 {
 	color: white;
 }
 
-.flip.present .back {
+.flip.present .back, .key.present {
 	background-color: #b59f3b;
 	border-color: #b59f3b;
 }
 
-.flip.absent .back {
+.flip.absent .back, .key.absent {
 	background-color: #3a3a3c;
 	border-color: #3a3a3c;
 }
 
-.flip.correct .back {
+.flip.correct .back, .key.correct {
 	background-color: #538d4e;
 	border-color: #538d4e;
 }
 
-
 .keyboard {
-	margin-top: 2rem;
-	display: grid;
-	grid-template-columns: repeat(10, 1fr);
-	gap: 0.3rem;
-	max-width: 500px;
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.keyboard-r {
+	display: flex;
 }
 
 .key {
-	padding: 0.6rem;
+	width: 40px;
+	height: 50px;
 	background-color: #818384;
 	color: white;
 	border: none;
@@ -98,9 +101,10 @@ h1 {
 	font-weight: bold;
 	border-radius: 4px;
 	cursor: pointer;
+	margin: 3px 2px;
 }
 
 .key.enter,
 .key.backspace {
-	grid-column: span 2;
+	width: 61px;
 }

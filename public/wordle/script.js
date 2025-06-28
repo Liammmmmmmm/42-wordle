@@ -56,19 +56,21 @@ function flipTile(pos, type) {
 	document.getElementById(`wordle-${pos.y}-${pos.x}`).classList.add("flipped");
 }
 
-addEventListener("keydown", (event) => {
+addEventListener("keydown", (event) => keyaction(event.key));
+
+function keyaction(key) {
 	if (pause_event) return ;
-	if (isalpha(event.key) && position.y <= 6 && position.x <= 5)
+	if (isalpha(key) && position.y <= 6 && position.x <= 5)
 	{
-		setLetter(position, event.key);
+		setLetter(position, key);
 		position.x++;
 	}
-	else if ((event.key == "Delete" || event.key == "Backspace") && position.y >= 1 && position.x > 1)
+	else if ((key == "Delete" || key == "Backspace") && position.y >= 1 && position.x > 1)
 	{
 		position.x--;
 		setLetter(position, "");
 	}
-	else if (event.key == "Enter")
+	else if (key == "Enter")
 	{
 		if (position.x != 6)
 			return (toast_error("The word should be 5 letters long"));
@@ -106,4 +108,4 @@ addEventListener("keydown", (event) => {
 			toast_error(error.response.data.details);
 		})
 	}
-})
+}
