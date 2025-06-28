@@ -84,7 +84,6 @@ function keyaction(key) {
 		})
 		.then(function (response) {
 			const validation = response.data.validation;
-			
 			flipTile({x: 1, y: position.y}, validation[0]);
 			setTimeout(() => flipTile({x: 2, y: position.y}, validation[1]), 200);
 			setTimeout(() => flipTile({x: 3, y: position.y}, validation[2]), 400);
