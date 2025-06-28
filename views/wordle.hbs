@@ -6,17 +6,55 @@
 	<title>42 - Wordle</title>
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
 	<link rel="stylesheet" href="/wordle/style.css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<script src="/wordle/script.js"></script>
 </head>
 <body>
 	<h1>42 Wordle</h1>
 	<div class="grid"> {{!-- correct present absent a add sur les lettres apres le send--}}
-		<div class="row"><div id="wordle-1-1" class="tile"></div><div id="wordle-1-2" class="tile"></div><div id="wordle-1-3" class="tile"></div><div id="wordle-1-4" class="tile"></div><div id="wordle-1-5" class="tile"></div></div>
-		<div class="row"><div id="wordle-2-1" class="tile"></div><div id="wordle-2-2" class="tile"></div><div id="wordle-2-3" class="tile"></div><div id="wordle-2-4" class="tile"></div><div id="wordle-2-5" class="tile"></div></div>
-		<div class="row"><div id="wordle-3-1" class="tile"></div><div id="wordle-3-2" class="tile"></div><div id="wordle-3-3" class="tile"></div><div id="wordle-3-4" class="tile"></div><div id="wordle-3-5" class="tile"></div></div>
-		<div class="row"><div id="wordle-4-1" class="tile"></div><div id="wordle-4-2" class="tile"></div><div id="wordle-4-3" class="tile"></div><div id="wordle-4-4" class="tile"></div><div id="wordle-4-5" class="tile"></div></div>
-		<div class="row"><div id="wordle-5-1" class="tile"></div><div id="wordle-5-2" class="tile"></div><div id="wordle-5-3" class="tile"></div><div id="wordle-5-4" class="tile"></div><div id="wordle-5-5" class="tile"></div></div>
-		<div class="row"><div id="wordle-6-1" class="tile"></div><div id="wordle-6-2" class="tile"></div><div id="wordle-6-3" class="tile"></div><div id="wordle-6-4" class="tile"></div><div id="wordle-6-5" class="tile"></div></div>
+		<div class="row">
+			<div id="wordle-1-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-1-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-1-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-1-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-1-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
+		<div class="row">
+			<div id="wordle-2-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-2-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-2-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-2-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-2-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
+		<div class="row">
+			<div id="wordle-3-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-3-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-3-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-3-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-3-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
+		<div class="row">
+			<div id="wordle-4-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-4-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-4-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-4-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-4-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
+		<div class="row">
+			<div id="wordle-5-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-5-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-5-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-5-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-5-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
+		<div class="row">
+			<div id="wordle-6-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-6-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-6-3" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-6-4" class="tile flip"><div class="front"></div><div class="back"></div></div>
+			<div id="wordle-6-5" class="tile flip"><div class="front"></div><div class="back"></div></div>
+		</div>
 	</div>
 
 	<div class="keyboard">
@@ -28,5 +66,7 @@
 		<button class="key">V</button><button class="key">B</button><button class="key">N</button><button class="key">M</button>
 		<button class="key backspace">⌫</button>
 	</div>
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 </html>

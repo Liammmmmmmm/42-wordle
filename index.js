@@ -43,6 +43,7 @@ app.set('view engine', 'hbs');
 // require('./socket/...');
 
 app.use('/', require('./routes/index'));
+app.use('/api/wordle', require('./routes/wordle'));
 
 
 app.use(function (req, res, next) {

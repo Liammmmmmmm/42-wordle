@@ -39,23 +39,47 @@ h1 {
 	font-weight: bold;
 }
 
-.correct {
-	background-color: #538d4e;
-	border-color: #538d4e;
+.flip {
+	perspective: 1000px;
+	transform-style: preserve-3d;
+	transition: transform 0.6s;
+}
+
+.flip.flipped {
+	transform: rotateX(180deg);
+}
+
+.flip .front,
+.flip .back {
+	position: absolute;
+	backface-visibility: hidden;
+	width: 100%;
+	height: 100%;
+	line-height: 2em;
+	text-align: center;
+	font-weight: bold;
+}
+
+.flip .back {
+	transform: rotateX(180deg);
 	color: white;
 }
 
-.present {
+.flip.present .back {
 	background-color: #b59f3b;
 	border-color: #b59f3b;
-	color: white;
 }
 
-.absent {
+.flip.absent .back {
 	background-color: #3a3a3c;
 	border-color: #3a3a3c;
-	color: white;
 }
+
+.flip.correct .back {
+	background-color: #538d4e;
+	border-color: #538d4e;
+}
+
 
 .keyboard {
 	margin-top: 2rem;
