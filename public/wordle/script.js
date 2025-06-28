@@ -11,6 +11,28 @@ function isalpha(ch) {
 	return (/^[A-Z]$/i.test(ch));
 }
 
+function setKeyboardTileColor(key, keyState) {
+    const buttons = document.querySelectorAll('.key');
+
+    let targetButton = null;
+    buttons.forEach(button => {
+        if (button.textContent.toUpperCase() === key.toUpperCase()) {
+            targetButton = button;
+        }
+    });
+
+    if (!targetButton) return ;
+
+    if (targetButton.classList.contains('correct')) {
+        return ;
+    }
+    if (targetButton.classList.contains('present') && keyState === 'absent') {
+        return ;
+    }
+    targetButton.classList.remove('absent', 'present', 'correct');
+    targetButton.classList.add(keyState);
+}
+
 function toast_error(error) {
 	Toastify({
 		text: error || "An error occured",
@@ -48,7 +70,7 @@ function setLetter(pos, letter)
 
 function getLetter(pos)
 {
-	return (document.querySelector(`#wordle-${pos.y}-${pos.x} .front`).innerText);
+	return  (document.querySelector(`#wordle-${pos.y}-${pos.x} .front`).innerText);
 }
 
 function flipTile(pos, type) {
@@ -59,7 +81,7 @@ function flipTile(pos, type) {
 addEventListener("keydown", (event) => keyaction(event.key));
 
 function keyaction(key) {
-	if (pause_event) return ;
+	if (pause_event) return  ;
 	if (isalpha(key) && position.y <= 6 && position.x <= 5)
 	{
 		setLetter(position, key);
@@ -73,14 +95,15 @@ function keyaction(key) {
 	else if (key == "Enter")
 	{
 		if (position.x != 6)
-			return (toast_error("The word should be 5 letters long"));
+			return  (toast_error("The word should be 5 letters long"));
 		if (position.y > 6)
-			return (toast_error("The game is over !"));
+			return  (toast_error("The game is over !"));
 
 		pause_event = true;
+		const word = `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`;
 
 		axios.post('/api/wordle/validateword', {
-			word: `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`
+			word: word
 		})
 		.then(function (response) {
 			const validation = response.data.validation;
@@ -90,6 +113,8 @@ function keyaction(key) {
 			setTimeout(() => flipTile({x: 4, y: position.y}, validation[3]), 600);
 			setTimeout(() => {
 				flipTile({x: 5, y: position.y}, validation[4]);
+
+
 				position.y++;
 				position.x = 1;
 				pause_event = false;
@@ -97,9 +122,13 @@ function keyaction(key) {
 				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
 					toast_success("Congratulations !");
 					pause_event = true;
-					return ;
+					return  ;
 				}
-
+				setTimeout(() => {
+					for (let i = 0; i < 5; i++) {
+						setKeyboardTileColor(word[i], validation[i]);
+					}
+				}, 550);
 			}, 800);
 		})
 		.catch(function (error) {

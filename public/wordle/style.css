@@ -65,14 +65,14 @@ h1 {
 	color: white;
 }
 
-.flip.present .back, .key.present {
-	background-color: #b59f3b;
-	border-color: #b59f3b;
-}
-
 .flip.absent .back, .key.absent {
 	background-color: #3a3a3c;
 	border-color: #3a3a3c;
+}
+
+.flip.present .back, .key.present {
+	background-color: #b59f3b;
+	border-color: #b59f3b;
 }
 
 .flip.correct .back, .key.correct {
