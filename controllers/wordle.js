@@ -1,4 +1,13 @@
 const fs = require("fs");
+const sqlite3 = require('sqlite3').verbose();
+
+const db = new sqlite3.Database('./dev.db', (err) => {
+	if (err) {
+		console.error(err.message);
+	} else {
+		console.log('Connected to the SQLite database.');
+	}
+});
 
 const words = [];
 
@@ -53,5 +62,98 @@ exports.validateWord = async (req, res) => {
 		else if (dayWord.includes(word[i])) validation[i] = "present";
 	}
 
-	return (res.status(200).json({ error: true, validation: validation }));
+	return (res.status(200).json({ error: false, validation: validation }));
 }
+
+exports.saveResults = async (req, res) => {
+	const time = req.body?.time;
+	const atempts = req.body?.atempts;
+	const word = req.body?.word?.toLowerCase();
+
+	if (!time || !word || !atempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
+	if (getWordOfTheDay() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
+
+	const access_token = req.cookies?.access_token;
+	if (!access_token) return res.status(401).json({ error: true, details: "Missing access token" }); // REFRESH LE TOKEN
+
+	let login;
+	try {
+		const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
+			headers: {
+				Authorization: 'Bearer ' + access_token
+			}
+		});
+		login = userResponse.data.login;
+	} catch (err) {
+		return res.status(401).json({ error: true, details: "Invalid access token" }); // REFRESH LE TOKEN
+	}
+
+	const now = new Date();
+	const dd = String(now.getDate()).padStart(2, "0");
+	const mm = String(now.getMonth() + 1).padStart(2, "0");
+	const yyyy = now.getFullYear();
+	const wordle = `${dd}-${mm}-${yyyy}`;
+
+	const checkSql = `SELECT id FROM wordle_participations WHERE login = ? AND wordle = ?`;
+	db.get(checkSql, [login, wordle], function (err, row) {
+		if (err) {
+			return res.status(500).json({ error: true, details: "DB error" });
+		}
+		if (row) {
+			return res.status(409).json({ error: true, details: "Already participated today" });
+		}
+		const insertSql = `INSERT INTO wordle_participations (login, wordle, time, atempts) VALUES (?, ?, ?, ?)`;
+		db.run(insertSql, [login, wordle, time, atempts], function (err) {
+			if (err) {
+				return res.status(500).json({ error: true, details: "DB error" });
+			}
+			return res.status(200).json({ error: false });
+		});
+	});
+
+	return (res.status(200).json({ error: false }));
+}
+
+exports.getWordleStats = (callback) => {
+	const now = new Date();
+	const dd = String(now.getDate()).padStart(2, "0");
+	const mm = String(now.getMonth() + 1).padStart(2, "0");
+	const yyyy = now.getFullYear();
+	const wordle = `${dd}-${mm}-${yyyy}`;
+
+	const fastestSql = `
+		SELECT login, time, atempts FROM wordle_participations
+		WHERE wordle = ?
+		ORDER BY time ASC, atempts ASC
+		LIMIT 5
+	`;
+	const fewestAttemptsSql = `
+		SELECT login, time, atempts FROM wordle_participations
+		WHERE wordle = ?
+		ORDER BY atempts ASC, time ASC
+		LIMIT 5
+	`;
+	const latestSql = `
+		SELECT login, time, atempts, wordle FROM wordle_participations
+		ORDER BY id DESC
+		LIMIT 10
+	`;
+
+	db.all(fastestSql, [wordle], (err, fastest) => {
+		if (err) return callback(err);
+
+		db.all(fewestAttemptsSql, [wordle], (err, fewest_attempts) => {
+			if (err) return callback(err);
+
+			db.all(latestSql, [], (err, latest) => {
+				if (err) return callback(err);
+
+				return callback(null, {
+					fastest,
+					fewest_attempts,
+					latest
+				});
+			});
+		});
+	});
+};

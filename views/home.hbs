@@ -8,6 +8,13 @@
 <body>
 	<h1>42times</h1>
 
+	{{#if user_data}}
+		<img src="{{user_data.img}}" alt="Profile picture">
+        <p>Bienvenue, {{user_data.name}} !</p>
+    {{else}}
+        <a href="{{login_url}}">LOGIN</a>
+    {{/if}}
+
 	<a href="/wordle">Play wordle !</a>
 </body>
 </html>
