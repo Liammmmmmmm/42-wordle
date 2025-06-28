@@ -48,22 +48,6 @@ function shakeCurrentRow() {
     }, 150);
 }
 
-// function toast_error(error) {
-// 	Toastify({
-// 		text: error || "An error occured",
-// 		duration: 5000,
-// 		close: true,
-// 		gravity: "top",
-// 		position: "center",
-// 		stopOnFocus: true,
-// 		style: {
-// 			background: "#bd3030",
-// 		},
-// 	}).showToast();
-
-// 	pause_event = false;
-// }
-
 function toast_success(msg) {
 	Toastify({
 		text: msg || "Success",
@@ -129,15 +113,11 @@ function keyaction(key) {
 	}
 	else if (key == "Enter")
 	{
-		// if (position.x != 6)
-			// return  (toast_error("The word should be 5 letters long"));
 		if (position.x != 6) {
 			pause_event = true;
 			shakeCurrentRow();
 			return ;
 		}
-		// if (position.y > 6)
-		// 	return (toast_error("The game is over !"));
 
 		pause_event = true;
 		const word = `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`;
