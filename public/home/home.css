@@ -162,3 +162,26 @@ h1 {
     color: #d7dadc;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
+.lang-select-container {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    z-index: 10;
+}
+
+#langSelect {
+    background: #232323;
+    color: #fff;
+    border: 1px solid #3a3a3c;
+    border-radius: 5px;
+    padding: 0.3rem 2.2rem 0.3rem 0.8rem;
+    font-size: 1rem;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+}
+#langSelect option {
+    background: #232323;
+    color: #fff;
+}

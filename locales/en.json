@@ -13,5 +13,21 @@
 	"rules.p3": "Green = correct letter & position",
 	"rules.p4": "Yellow = correct letter, wrong position",
 	"rules.p5": "Gray = letter not in word",
-	"rules.p6": "Hard mode: you must use revealed hints in all following guesses"
+	"rules.p6": "Hard mode: you must use revealed hints in all following guesses",
+	"404title": "404 - Page not found",
+	"notfound_sub": "Oops! Page not found",
+	"404text1": "Sorry, the page you are looking for seems to have disappeared into the depths of the web.",
+	"404text2": "Maybe you made a typo, or maybe this page simply doesn't exist.",
+	"backhome": "Back to home",
+	"last_players": "Last players",
+	"fastest_players": "Fastest players",
+	"fewest_attempts": "Fewest attempts",
+	"lead.attempts": "attempts",
+	"gameover": "GAME OVER!",
+	"win": "WIN!",
+	"stats.attempts": "Attempts:",
+	"stats.time": "Time:",
+	"stats.share": "Share results",
+	"stats.copied": "Copied to clipboard",
+	"attemptsc": "attemptsc"
 }

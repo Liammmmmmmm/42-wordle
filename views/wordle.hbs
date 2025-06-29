@@ -84,7 +84,7 @@
 
 	<div class="leaderboards">
 		<div class="leaderboard">
-			<h2>Last players</h2>
+			<h2>{{ __ "last_players" }}</h2>
 			<ul>
 				{{#each leaderboards.latest}}
 					<li class="center-li">{{login}}</li>
@@ -92,44 +92,44 @@
 			</ul>
 		</div>
 		<div class="leaderboard">
-			<h2>Fastest</h2>
+			<h2>{{ __ "fastest_players" }}</h2>
 			<ul>
 				{{#each leaderboards.fastest}}
-					{{#eq attempts 7}}
+					{{#eqs attempts 7}}
 						<li>{{login}} <span class="score looser">{{time}}s</span></li>
 					{{else}}
 						<li>{{login}} <span class="score">{{time}}s</span></li>
-					{{/eq}}
+					{{/eqs}}
 				{{/each}}
 			</ul>
 		</div>
 		<div class="leaderboard">
-			<h2>Fewest attempts</h2>
+			<h2>{{ __ "fewest_attempts" }}</h2>
 			<ul>
 				{{#each leaderboards.fewest_attempts}}
-					{{#eq attempts 7}}
-						<li>{{login}} <span class="score looser">6 attempts</span></li>
+					{{#eqs attempts 7}}
+						<li>{{login}} <span class="score looser">6 {{ __ "lead.attempts" }}</span></li>
 					{{else}}
-						<li>{{login}} <span class="score">{{attempts}} attempts</span></li>
-					{{/eq}}
+						<li>{{login}} <span class="score">{{attempts}} {{ __ "lead.attempts" }}</span></li>
+					{{/eqs}}
 				{{/each}}
 			</ul>
 		</div>
 	</div>
 	<div class="home-button">
-		<a href="/" class="home-link">← Retour à l'accueil</a>
+		<a href="/" class="home-link">← {{ __ "backhome" }}</a>
 	</div>
 	<div id="gameOverModal" class="modal hide-modal">
 		<div class="modal-content">
 			<span class="close">&times;</span>
-			<h2 id="modalTitle">Game Over</h2>
+			<h2 id="modalTitle">{{ __ "gameover" }}</h2>
 			<div id="gameStats">
 				<div class="stat">
-					<span class="stat-label">Attempts:</span>
+					<span class="stat-label">{{ __ "stats.attempts" }}</span>
 					<span id="attemptCount">{{stats.attempts}}</span>
 				</div>
 				<div class="stat">
-					<span class="stat-label">Time:</span>
+					<span class="stat-label">{{ __ "stats.time" }}</span>
 					<span id="timeCount">{{stats.time}}</span>
 				</div>
 			</div>
@@ -138,9 +138,9 @@
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M8.59 13.51l6.83 3.98m-.01-10.98l-6.82 3.98M21 5a3 3 0 11-6 0 3 3 0 016 0zM9 12a3 3 0 11-6 0 3 3 0 016 0zm12 7a3 3 0 11-6 0 3 3 0 016 0z"/>
 				</svg>
-				Share Result
+				{{ __ "stats.share" }}
 			</button>
-			<div id="copyNotification" class="copy-notification">Copied to clipboard!</div>
+			<div id="copyNotification" class="copy-notification">{{ __ "stats.copied" }}</div>
 		</div>
 	</div>
 

@@ -8,6 +8,24 @@
 	<link rel="stylesheet" href="/home/home.css">
 </head>
 <body>
+	<div class="lang-select-container">
+        <form id="langForm" method="get">
+            <select name="lang" id="langSelect" onchange="document.getElementById('langForm').submit()">
+				<option value="en" {{#if (eq @root.locale "en")}}selected{{/if}}>🇬🇧 English</option>
+				<option value="fr" {{#if (eq @root.locale "fr")}}selected{{/if}}>🇫🇷 Français</option>
+				<option value="jp" {{#if (eq @root.locale "jp")}}selected{{/if}}>🇯🇵 日本語</option>
+				<option value="anc-gr" {{#if (eq @root.locale "anc-gr")}}selected{{/if}}>🇬🇷 Anciant greek</option>
+				<option value="ru" {{#if (eq @root.locale "ru")}}selected{{/if}}>🇷🇺 Russian</option>
+				<option value="hindi" {{#if (eq @root.locale "hindi")}}selected{{/if}}>🇮🇳 Hindi</option>
+				<option value="ch-tr" {{#if (eq @root.locale "ch-tr")}}selected{{/if}}>🇹🇼 Traditional Chinese</option>
+				<option value="cor" {{#if (eq @root.locale "cor")}}selected{{/if}}>🇰🇷 Korean</option>
+				<option value="espe" {{#if (eq @root.locale "espe")}}selected{{/if}}>🌍 Esperanto</option>
+				<option value="mini" {{#if (eq @root.locale "mini")}}selected{{/if}}>🍌 Minionese</option>
+				<option value="klin" {{#if (eq @root.locale "klin")}}selected{{/if}}>🛡️ Klingon (tlhIngan Hol)</option>
+            </select>
+        </form>
+    </div>
+
 	<h1>{{__ "title"}}</h1>
 
 	<div class="user-section">

@@ -18,6 +18,7 @@ router.get('/', (req, res) => {
 				res.render('home', {
 					user_data: data,
 					login_url: login_url,
+					locale: req.getLocale(),
 					__: res.__
 				});
 			});
@@ -25,6 +26,7 @@ router.get('/', (req, res) => {
 			res.render('home', {
 				user_data: null,
 				login_url: login_url,
+				locale: req.getLocale(),
 				__: res.__
 			});
 		}
@@ -32,6 +34,7 @@ router.get('/', (req, res) => {
 		res.render('home', {
 			user_data: null,
 			login_url: login_url,
+			locale: req.getLocale(),
 			__: res.__
 		});
 	}
