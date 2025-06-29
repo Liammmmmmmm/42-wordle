@@ -6,4 +6,7 @@ const router = express.Router();
 router.post('/validateword', wordleController.validateWord );
 router.post('/saveresults', wordleController.saveResults );
 
+router.get('/dates', wordleController.getAvailableDates );
+router.get('/archive/:date', wordleController.getArchiveByDate );
+
 module.exports = router;
