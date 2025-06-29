@@ -11,8 +11,10 @@
 	<script src="/wordle/script.js"></script>
 </head>
 <body>
+	
+					
 	<h1>42 Wordle</h1>
-	<div class="grid"> {{!-- correct present absent a add sur les lettres apres le send--}}
+	<div class="grid">
 		<div class="row">
 			<div id="wordle-1-1" class="tile flip"><div class="front"></div><div class="back"></div></div>
 			<div id="wordle-1-2" class="tile flip"><div class="front"></div><div class="back"></div></div>
@@ -66,6 +68,33 @@
 		</div>
 		<div class="keyboard-r">
 			<button onclick="keyaction('Enter')" class="key enter">Enter</button><button onclick="keyaction('Z')" class="key">Z</button><button onclick="keyaction('X')" class="key">X</button><button onclick="keyaction('C')" class="key">C</button><button onclick="keyaction('V')" class="key">V</button><button onclick="keyaction('B')" class="key">B</button><button onclick="keyaction('N')" class="key">N</button><button onclick="keyaction('M')" class="key">M</button><button onclick="keyaction('Backspace')" class="key backspace">⌫</button>
+		</div>
+	</div>
+
+	<div class="leaderboards">
+		<div class="leaderboard">
+			<h2>Last players</h2>
+			<ul>
+				{{#each leaderboards.latest}}
+					<li>{{login}}</li>
+				{{/each}}
+			</ul>
+		</div>
+		<div class="leaderboard">
+			<h2>Fastest</h2>
+			<ul>
+				{{#each leaderboards.fastest}}
+					<li>{{login}} <span class="score">{{time}}s</span></li>
+				{{/each}}
+			</ul>
+		</div>
+		<div class="leaderboard">
+			<h2>Fewest attempts</h2>
+			<ul>
+				{{#each leaderboards.fewest_attempts}}
+					<li>{{login}} <span class="score">{{attempts}} attempts</span></li>
+				{{/each}}
+			</ul>
 		</div>
 	</div>
 

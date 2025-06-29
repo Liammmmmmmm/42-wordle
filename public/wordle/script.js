@@ -169,7 +169,7 @@ function saveResults(word)
 	axios.post('/api/wordle/saveresults', {
 		word: word,
 		time: (Date.now() - start_time) / 1000,
-		atempts: position.y - 1
+		attempts: position.y - 1
 	})
 	.catch(function (error) {
 		console.log(error);

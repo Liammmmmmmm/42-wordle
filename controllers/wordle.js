@@ -73,10 +73,10 @@ exports.validateWord = async (req, res) => {
 
 exports.saveResults = async (req, res) => {
 	const time = req.body?.time;
-	const atempts = req.body?.atempts;
+	const attempts = req.body?.attempts;
 	const word = req.body?.word?.toLowerCase();
 
-	if (!time || !word || !atempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
+	if (!time || !word || !attempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (getWordOfTheDaySync() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
 
 	let access_token = req.cookies?.access_token;
@@ -113,7 +113,7 @@ exports.saveResults = async (req, res) => {
 		}
 	}
 
-	if (atempts < 1) atempts = 9999;
+	if (attempts < 1) attempts = 9999;
 	if (time < 0) time = 999999;
 
 	const now = new Date();
@@ -130,8 +130,8 @@ exports.saveResults = async (req, res) => {
 		if (row) {
 			return res.status(409).json({ error: true, details: "Already participated today" });
 		}
-		const insertSql = `INSERT INTO wordle_participations (login, wordle, time, atempts) VALUES (?, ?, ?, ?)`;
-		db.run(insertSql, [login, wordle, time, atempts], function (err) {
+		const insertSql = `INSERT INTO wordle_participations (login, wordle, time, attempts) VALUES (?, ?, ?, ?)`;
+		db.run(insertSql, [login, wordle, time, attempts], function (err) {
 			if (err) {
 				return res.status(500).json({ error: true, details: "DB error" });
 			}
@@ -148,19 +148,19 @@ exports.getWordleStats = (callback) => {
 	const wordle = `${dd}-${mm}-${yyyy}`;
 
 	const fastestSql = `
-		SELECT login, time, atempts FROM wordle_participations
+		SELECT login, time, attempts FROM wordle_participations
 		WHERE wordle = ?
-		ORDER BY time ASC, atempts ASC
+		ORDER BY time ASC, attempts ASC
 		LIMIT 5
 	`;
 	const fewestAttemptsSql = `
-		SELECT login, time, atempts FROM wordle_participations
+		SELECT login, time, attempts FROM wordle_participations
 		WHERE wordle = ?
-		ORDER BY atempts ASC, time ASC
+		ORDER BY attempts ASC, time ASC
 		LIMIT 5
 	`;
 	const latestSql = `
-		SELECT login, time, atempts, wordle FROM wordle_participations
+		SELECT login, time, attempts, wordle FROM wordle_participations
 		ORDER BY id DESC
 		LIMIT 10
 	`;

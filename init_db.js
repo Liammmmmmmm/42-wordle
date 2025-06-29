@@ -8,7 +8,7 @@ db.serialize(() => {
     login TEXT NOT NULL,
     wordle TEXT NOT NULL,
     time INTEGER NOT NULL,
-	atempts INTEGER NOT NULL
+	attempts INTEGER NOT NULL
   )`);
   console.log('Table "wordle_participations" créée.');
 });

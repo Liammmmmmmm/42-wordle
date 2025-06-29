@@ -135,3 +135,39 @@ h1 {
 .tile-delete {
 	animation: shake-delete 0.15s ease-in-out;
 }
+
+
+.leaderboards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+.leaderboard {
+    background: #222;
+    border-radius: 10px;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    min-width: 180px;
+}
+.leaderboard h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #ffd700;
+    text-align: center;
+}
+.leaderboard ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.leaderboard li {
+    padding: 0.2rem 0;
+    display: flex;
+    justify-content: space-between;
+    color: #fff;
+}
+.leaderboard .score {
+    color: #ffd700;
+    font-weight: bold;
+}
