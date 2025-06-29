@@ -116,13 +116,13 @@ exports.getWordleStats = (callback) => {
 		SELECT login, time, attempts FROM wordle_participations
 		WHERE wordle = ?
 		ORDER BY time ASC, attempts ASC
-		LIMIT 5
+		LIMIT 10
 	`;
 	const fewestAttemptsSql = `
 		SELECT login, time, attempts FROM wordle_participations
 		WHERE wordle = ?
 		ORDER BY attempts ASC, time ASC
-		LIMIT 5
+		LIMIT 10
 	`;
 	const latestSql = `
 		SELECT login, time, attempts, wordle FROM wordle_participations
