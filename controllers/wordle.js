@@ -55,7 +55,9 @@ exports.validateWord = async (req, res) => {
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
-	console.log(word, dayWord);
+	if (process.env.DEBUG === "true") {
+		console.log(word, dayWord);
+	}
 
 	const letterCount = {};
 	for (let letter of dayWord) {
