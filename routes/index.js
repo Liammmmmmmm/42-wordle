@@ -17,19 +17,22 @@ router.get('/', (req, res) => {
 				if (!err && row) data = row;
 				res.render('home', {
 					user_data: data,
-					login_url: login_url
+					login_url: login_url,
+					__: res.__
 				});
 			});
 		} catch (e) {
 			res.render('home', {
 				user_data: null,
-				login_url: login_url
+				login_url: login_url,
+				__: res.__
 			});
 		}
 	} else {
 		res.render('home', {
 			user_data: null,
-			login_url: login_url
+			login_url: login_url,
+			__: res.__
 		});
 	}
 });
@@ -54,13 +57,15 @@ router.get('/wordle', (req, res) => {
 		if (err) {
 			return res.render('wordle', {
 				leaderboards: null,
-				stats: null
+				stats: null,
+				__: res.__
 			});
 		}
 		getPersoStats(token, (err2, persoStats) => {
 			res.render('wordle', {
 				leaderboards: stats,
-				stats: err2 ? null : persoStats
+				stats: err2 ? null : persoStats,
+				__: res.__
 			});
 		});
 	});
