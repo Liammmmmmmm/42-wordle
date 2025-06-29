@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', (req, res) => {
 	const login_url = `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.APP_URL}/auth/redirection&response_type=code&scope=public&state=${process.env.FTAPI_STATE}`;
 	let data = null;
-	const token = req.cookies?.jwt;	
+	const token = req.cookies?.jwt;
 	if (token) {
 		try {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -62,11 +62,24 @@ router.get('/wordle', (req, res) => {
 			});
 		}
 		getPersoStats(token, (err2, persoStats) => {
-			res.render('wordle', {
-				leaderboards: stats,
-				stats: err2 ? null : persoStats,
-				__: res.__
-			});
+			try {
+				const decoded = jwt.verify(token, process.env.JWT_SECRET);
+				db.get('SELECT login FROM users WHERE id = ?', [decoded.id], (err, user) => {
+					res.render('wordle', {
+						leaderboards: stats,
+						stats: err2 ? null : persoStats,
+						userLogin: user ? user.login : null,
+						__: res.__
+					});
+				});
+			} catch (e) {
+				res.render('wordle', {
+					leaderboards: stats,
+					stats: err2 ? null : persoStats,
+					userLogin: null,
+					__: res.__
+				});
+			}
 		});
 	});
 });
