@@ -13,15 +13,18 @@ body {
 	justify-content: center;
 	align-items: center;
 }
+
 h1 {
 	margin-bottom: 2rem;
 	font-size: 3rem;
 	letter-spacing: 0.2rem;
 }
+
 .user-section {
 	margin-bottom: 3rem;
 	text-align: center;
 }
+
 .user-section img {
 	width: 80px;
 	height: 80px;
@@ -30,6 +33,7 @@ h1 {
 	border: 3px solid #538d4e;
 	object-fit: cover;
 }
+
 .login-btn {
 	background-color: #538d4e;
 	color: white;
@@ -39,25 +43,30 @@ h1 {
 	font-weight: bold;
 	transition: background-color 0.2s;
 }
+
 .login-btn:hover {
 	background-color: #5fa35a;
 }
+
 .games-section {
 	width: 100%;
 	max-width: 400px;
 }
+
 .game-title {
 	font-size: 1.5rem;
 	margin-bottom: 1.5rem;
 	text-align: center;
 	color: #538d4e;
 }
+
 .wordle-modes {
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 3rem;
 }
+
 .mode-card {
 	background-color: #1a1a1b;
 	border: 2px solid #3a3a3c;
@@ -69,32 +78,40 @@ h1 {
 	text-decoration: none;
 	color: #ffffff;
 }
+
 .mode-card:hover {
 	border-color: #538d4e;
 	transform: translateY(-2px);
 }
+
 .mode-card.hard:hover {
 	border-color: #b59f3b;
 }
+
 .mode-name {
 	font-size: 1.2rem;
 	font-weight: bold;
 	margin-bottom: 0.5rem;
 }
+
 .mode-card.hard .mode-name {
 	color: #b59f3b;
 }
+
 .mode-card.normal .mode-name {
 	color: #538d4e;
 }
+
 .mode-description {
 	font-size: 0.85rem;
 	color: #8e9297;
 }
+
 .mode-description-temp {
 	font-size: 0.85rem;
 	color: #e60303;
 }
+
 .how-to-play {
     background-color: #1a1a1b;
     border-radius: 8px;
@@ -106,9 +123,11 @@ h1 {
     border: 2px solid transparent;
     position: relative;
 }
+
 .how-to-play:hover {
     border-color: #3a3a3c;
 }
+
 .how-to-play summary {
     font-weight: bold;
     cursor: pointer;
@@ -119,26 +138,27 @@ h1 {
     justify-content: space-between;
     outline: none;
 }
-/* Enlever le triangle par défaut */
+
 .how-to-play summary::-webkit-details-marker {
     display: none;
 }
-/* Ajouter une flèche custom */
+
 .how-to-play summary::after {
     content: '▶';
     font-size: 0.8rem;
     transition: transform 0.3s ease;
     color: #8e9297;
 }
+
 .how-to-play[open] summary::after {
     transform: rotate(90deg);
 }
-/* Container pour les règles */
+
 .rules-content {
     margin-top: 1rem;
     overflow: hidden;
 }
-/* Animation des règles individuelles */
+
 .rule {
     margin-bottom: 0.8rem;
     font-size: 0.9rem;

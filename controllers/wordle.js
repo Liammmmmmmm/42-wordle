@@ -77,7 +77,7 @@ exports.saveResults = async (req, res) => {
 	const word = req.body?.word?.toLowerCase();
 
 	if (!time || !word || !atempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
-	if (getWordOfTheDay() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
+	if (getWordOfTheDaySync() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
 
 	let access_token = req.cookies?.access_token;
 	const refresh_token = req.cookies?.refresh_token;
@@ -180,4 +180,3 @@ exports.getWordleStats = (callback) => {
 		});
 	});
 };
-
