@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>42 - Wordle{{#eq mode "hard"}} (Hard Mode){{/eq}}</title>
+	<title>42 - Wordle{{#eqs mode "hard"}} (Hard Mode){{/eqs}}</title>
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
 	<link rel="stylesheet" href="/wordle/style.css">
 
@@ -17,12 +17,12 @@
 <body>
 	<div class="game-header">
 		<h1>42 Wordle</h1>
-		{{#eq mode "hard"}}
+		{{#eqs mode "hard"}}
 			<div class="hard-mode-indicator">
-				<span class="hard-mode-badge">HARD MODE</span>
-				<div class="hard-mode-description">Revealed hints must be used</div>
+				<span class="hard-mode-badge">{{__ "hard_mode"}}</span>
+				<div class="hard-mode-description">{{__ "hard_mode_desc"}}</div>
 			</div>
-		{{/eq}}
+		{{/eqs}}
 	</div>
 
 	<div class="grid">

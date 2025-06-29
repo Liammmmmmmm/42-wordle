@@ -330,6 +330,8 @@ function saveGameState() {
 		state_keyboard.keyboard[btn.textContent.toUpperCase()] = Array.from(btn.classList);
 	});
 
+	console.log(state)
+
 	setCookie('wordle_state', JSON.stringify(state), 2);
 	setCookie('keyboard_state', JSON.stringify(state_keyboard), 2);
 }
@@ -363,7 +365,11 @@ function loadGameState() {
 
 	if (state.hardModeConstraints) {
 		hardModeConstraints = {
-			requiredLetters: new Set(state.hardModeConstraints.requiredLetters),
+			requiredLetters: new Set(
+				Array.isArray(state.hardModeConstraints.requiredLetters)
+					? state.hardModeConstraints.requiredLetters
+					: []
+			),
 			correctPositions: state.hardModeConstraints.correctPositions || {},
 			bannedPositions: state.hardModeConstraints.bannedPositions || {}
 		};
