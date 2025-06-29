@@ -13,6 +13,10 @@ router.get('/', (req, res) => {
 });
 
 router.get('/wordle', (req, res) => {
+
+	const refresh_token = req.cookies?.refresh_token;
+	if (!refresh_token) return res.redirect("/");
+
 	getWordleStats((err, stats) => {
 		if (err) {
 			res.render('wordle', {

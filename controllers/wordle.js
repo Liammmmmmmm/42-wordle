@@ -1,5 +1,7 @@
 const fs = require("fs");
 const sqlite3 = require('sqlite3').verbose();
+const axios = require('axios');
+const { refreshToken } = require('./auth');
 
 const db = new sqlite3.Database('./dev.db', (err) => {
 	if (err) {
@@ -65,6 +67,8 @@ exports.validateWord = async (req, res) => {
 	return (res.status(200).json({ error: false, validation: validation }));
 }
 
+
+
 exports.saveResults = async (req, res) => {
 	const time = req.body?.time;
 	const atempts = req.body?.atempts;
@@ -73,8 +77,13 @@ exports.saveResults = async (req, res) => {
 	if (!time || !word || !atempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (getWordOfTheDay() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
 
-	const access_token = req.cookies?.access_token;
-	if (!access_token) return res.status(401).json({ error: true, details: "Missing access token" }); // REFRESH LE TOKEN
+	let access_token = req.cookies?.access_token;
+	const refresh_token = req.cookies?.refresh_token;
+	if (!refresh_token) return res.status(401).json({ error: true, details: "User not logged in" });
+	if (!access_token)
+	{
+		if (!await refreshToken(res, refresh_token)) return res.status(401).json({ error: true, details: "Invalid refresh token" });
+	}
 
 	let login;
 	try {
@@ -85,7 +94,19 @@ exports.saveResults = async (req, res) => {
 		});
 		login = userResponse.data.login;
 	} catch (err) {
-		return res.status(401).json({ error: true, details: "Invalid access token" }); // REFRESH LE TOKEN
+
+		if (!await refreshToken(res, refresh_token)) return res.status(401).json({ error: true, details: "Invalid refresh token" });
+
+		try {
+			const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
+				headers: {
+					Authorization: 'Bearer ' + access_token
+				}
+			});
+			login = userResponse.data.login;
+		} catch (error) {
+			return res.status(401).json({ error: true, details: "Invalid refresh token" });
+		}
 	}
 
 	const now = new Date();
@@ -110,8 +131,6 @@ exports.saveResults = async (req, res) => {
 			return res.status(200).json({ error: false });
 		});
 	});
-
-	return (res.status(200).json({ error: false }));
 }
 
 exports.getWordleStats = (callback) => {

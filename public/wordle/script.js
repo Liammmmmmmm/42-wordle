@@ -109,3 +109,18 @@ function keyaction(key) {
 		})
 	}
 }
+
+function saveResults()
+{
+	axios.post('/api/wordle/saveresults', {
+		word: `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`,
+		time: 100,
+		atempts: 3
+	})
+	.then(function (response) {
+		console.log(response);		
+	})
+	.catch(function (error) {
+		console.log(error);
+	})
+}
