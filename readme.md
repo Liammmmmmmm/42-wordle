@@ -2,6 +2,8 @@
 
 A multilingual Wordle web application built with Node.js, Express, Handlebars, and SQLite/MySQL. Features user authentication via 42 API, leaderboards, and support for multiple languages.
 
+Try it on https://42wordle.whatsweb.fr/
+
 ## Features
 
 - Play Wordle in various languages
