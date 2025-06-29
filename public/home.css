@@ -8,7 +8,8 @@ body {
 	justify-content: flex-start;
 	margin: 0;
 	padding: 2rem;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 	min-height: 80vh;
 	justify-content: center;
 	align-items: center;
