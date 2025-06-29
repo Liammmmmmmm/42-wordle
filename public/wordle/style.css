@@ -18,8 +18,46 @@ body {
 	align-items: center;
 }
 
-h1 {
+.game-header {
+	text-align: center;
 	margin-bottom: 2rem;
+}
+
+h1 {
+	margin-bottom: 1rem;
+}
+
+.hard-mode-indicator {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.hard-mode-badge {
+	background-color: #b59f3b;
+	color: #ffffff;
+	padding: 0.3rem 0.8rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: bold;
+	letter-spacing: 0.1rem;
+	animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+	from {
+		box-shadow: 0 0 5px rgba(181, 159, 59, 0.5);
+	}
+	to {
+		box-shadow: 0 0 15px rgba(181, 159, 59, 0.8);
+	}
+}
+
+.hard-mode-description {
+	font-size: 0.9rem;
+	color: #8e9297;
+	font-style: italic;
 }
 
 .grid {
@@ -125,7 +163,6 @@ h1 {
 	animation: subtle-bounce 0.15s ease-out;
 }
 
-
 @keyframes shake-delete {
 	0%, 100% { transform: translateX(0); }
 	25% { transform: translateX(-2px); }
@@ -136,6 +173,15 @@ h1 {
 	animation: shake-delete 0.15s ease-in-out;
 }
 
+@keyframes shake-row {
+	0%, 100% { transform: translateX(0); }
+	10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+	20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.row-shake {
+	animation: shake-row 0.5s ease-in-out;
+}
 
 .leaderboards {
     display: flex;
@@ -349,4 +395,29 @@ h1 {
 
 .copy-notification.show {
     opacity: 1;
+}
+
+.hard-mode-error {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #b59f3b;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 1001;
+    animation: errorFadeIn 0.3s ease;
+}
+
+@keyframes errorFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
