@@ -31,6 +31,10 @@ app.use(express.json());
 
 // exports.io = io;
 
+const hbs = require('hbs');
+hbs.registerHelper('eq', function(a, b, options) {
+  return a === b ? options.fn(this) : options.inverse(this);
+});
 
 app.set('view engine', 'hbs');
 

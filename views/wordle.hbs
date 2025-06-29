@@ -74,7 +74,7 @@
 			<h2>Last players</h2>
 			<ul>
 				{{#each leaderboards.latest}}
-					<li>{{login}}</li>
+					<li class="center-li">{{login}}</li>
 				{{/each}}
 			</ul>
 		</div>
@@ -82,7 +82,11 @@
 			<h2>Fastest</h2>
 			<ul>
 				{{#each leaderboards.fastest}}
-					<li>{{login}} <span class="score">{{time}}s</span></li>
+					{{#eq attempts 7}}
+						<li>{{login}} <span class="score looser">{{time}}s</span></li>
+					{{else}}
+						<li>{{login}} <span class="score">{{time}}s</span></li>
+					{{/eq}}
 				{{/each}}
 			</ul>
 		</div>
@@ -90,7 +94,11 @@
 			<h2>Fewest attempts</h2>
 			<ul>
 				{{#each leaderboards.fewest_attempts}}
-					<li>{{login}} <span class="score">{{attempts}} attempts</span></li>
+					{{#eq attempts 7}}
+						<li>{{login}} <span class="score looser">6 attempts</span></li>
+					{{else}}
+						<li>{{login}} <span class="score">{{attempts}} attempts</span></li>
+					{{/eq}}
 				{{/each}}
 			</ul>
 		</div>

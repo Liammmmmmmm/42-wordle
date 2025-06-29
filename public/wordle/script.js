@@ -8,6 +8,26 @@ const	position = {
 let start_time = undefined;
 let pause_event = false;
 
+window.addEventListener("load", (event) => {
+	loadGameState();
+	if (document.getElementById("attemptCount").innerText != "")
+	{
+		pause_event = true;
+		if (document.getElementById("attemptCount").innerText == "7")
+		{
+			document.getElementById("attemptCount").innerText = 6;
+			displayShareResult();
+			originalOpenPopUpLoose();
+		}
+		else
+		{
+			displayShareResult();
+			originalOpenPopUpWin();
+		}
+	}
+});
+
+
 function isalpha(ch) {
 	return (/^[A-Z]$/i.test(ch));
 }
@@ -33,6 +53,7 @@ function setKeyboardTileColor(key, keyState) {
 	targetButton.classList.remove('absent', 'present', 'correct');
 	targetButton.classList.add(keyState);
 }
+
 
 function shakeCurrentRow() {
     for (let x = 1; x <= 5; x++) {
@@ -84,7 +105,98 @@ function flipTile(pos, type) {
 	document.getElementById(`wordle-${pos.y}-${pos.x}`).classList.add("flipped");
 }
 
-addEventListener("keydown", (event) => keyaction(event.key));
+function setCookie(name, value, days) {
+	const expires = new Date(Date.now() + days*24*60*60*1000).toUTCString();
+	document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+function getCookie(name) {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+	return null;
+}
+
+function delCookie(name) {
+	document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
+function saveGameState() {
+	const state = {
+		date: new Date().toDateString(),
+		position: {...position},
+		start_time,
+		tiles: []
+	};
+	const state_keyboard = {
+		keyboard: {}
+	}
+	for (let y = 1; y <= 6; y++) {
+		let row = [];
+		for (let x = 1; x <= 5; x++) {
+			const tile = document.querySelector(`#wordle-${y}-${x}`);
+			if (!tile) continue;
+			row.push({
+				letter: tile.querySelector('.front').innerText,
+				classes: Array.from(tile.classList)
+			});
+		}
+		state.tiles.push(row);
+	}
+
+	document.querySelectorAll('.key').forEach(btn => {
+		state_keyboard.keyboard[btn.textContent.toUpperCase()] = Array.from(btn.classList);
+	});
+
+	setCookie('wordle_state', JSON.stringify(state), 2);
+	setCookie('keyboard_state', JSON.stringify(state_keyboard), 2);
+}
+
+function loadGameState() {
+	const stateStr = getCookie('wordle_state');
+	const stateKBStr = getCookie('keyboard_state');
+	if (!stateStr) return;
+	let state;
+	let stateKB;
+	try {
+		state = JSON.parse(stateStr);
+		stateKB = JSON.parse(stateKBStr);
+	} catch { return; }
+	if (!state || state.date !== new Date().toDateString())
+	{
+		delCookie('wordle_state');
+		delCookie('keyboard_state');
+		return ;
+	}
+
+	position.x = state.position.x;
+	position.y = state.position.y;
+	start_time = state.start_time;
+
+	for (let y = 1; y <= 6; y++) {
+		for (let x = 1; x <= 5; x++) {
+			const tile = document.querySelector(`#wordle-${y}-${x}`);
+			if (!tile) continue;
+			const tileState = state.tiles[y-1][x-1];
+			tile.querySelector('.front').innerText = tileState.letter;
+			tile.querySelector('.back').innerText = tileState.letter;
+			tile.className = `tile ${tileState.classes.filter(c => c !== 'tile').join(' ')}`;
+		}
+	}
+
+	document.querySelectorAll('.key').forEach(btn => {
+		const key = btn.textContent.toUpperCase();
+		if (stateKB.keyboard[key]) {
+			btn.className = `key ${stateKB.keyboard[key].filter(c => c !== 'key').join(' ')}`;
+		}
+	});
+}
+
+
+addEventListener("keydown", (event) => {
+	if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') return ;
+	keyaction(event.key)
+});
 
 function keyaction(key) {
 	if (pause_event) return ;
@@ -93,11 +205,13 @@ function keyaction(key) {
 	{
 		setLetter(position, key);
 		position.x++;
+		saveGameState();
 	}
 	else if ((key == "Delete" || key == "Backspace") && position.y >= 1 && position.x > 1)
 	{
 		position.x--;
 		setLetter(position, "");
+		saveGameState();
 	}
 	else if (key == "Enter")
 	{
@@ -130,6 +244,8 @@ function keyaction(key) {
 					for (let i = 0; i < 5; i++) {
 						setKeyboardTileColor(word[i], validation[i]);
 					}
+
+					saveGameState();
 				}, 550);
 				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
 
@@ -140,6 +256,14 @@ function keyaction(key) {
 				}
 				else if (position.y === 7)
 				{
+					axios.post('/api/wordle/saveresults', {
+						word: word,
+						time: (Date.now() - start_time) / 1000,
+						attempts: position.y
+					})
+					.catch(function (error) {
+						console.log(error);
+					})
 					document.getElementById("attemptCount").innerText = position.y - 1;
 					document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
 					setTimeout(openPopUpLoose, 800);
