@@ -63,17 +63,15 @@ exports.validateWord = async (req, res) => {
 
 
 exports.saveResults = async (req, res) => {
-	const time = req.body?.time;
-	const attempts = req.body?.attempts;
+	let time = req.body?.time;
+	let attempts = req.body?.attempts;
 	const word = req.body?.word?.toLowerCase();
 
 	if (!time || !word || !attempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
-	if (getWordOfTheDaySync() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
 
-	const authHeader = req.headers['authorization'];
-	if (!authHeader) return res.status(401).json({ error: true, details: "Missing token" });
+	if (getWordOfTheDaySync() != word) attempts = 7;
 
-	const token = authHeader.split(' ')[1];
+	const token = req.cookies?.jwt;
 	let userId;
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -92,10 +90,10 @@ exports.saveResults = async (req, res) => {
 	const wordle = `${dd}-${mm}-${yyyy}`;
 
 	db.get(`SELECT login FROM users WHERE id = ?`, [userId], function (err, row) {
-        if (err || !row) {
-            return res.status(500).json({ error: true, details: "User not found" });
-        }
-        const login = row.login;
+		if (err || !row) {
+			return res.status(500).json({ error: true, details: "User not found" });
+		}
+		const login = row.login;
 		db.get(`SELECT id FROM wordle_participations WHERE login = ? AND wordle = ?`, [login, wordle], function (err, row) {
 			if (err) return res.status(500).json({ error: true, details: "DB error" });
 			if (row) return res.status(409).json({ error: true, details: "Already participated today" });
@@ -148,5 +146,37 @@ exports.getWordleStats = (callback) => {
 				});
 			});
 		});
+	});
+};
+
+exports.getPersoStats = (token, callback) => {
+	const now = new Date();
+	const dd = String(now.getDate()).padStart(2, "0");
+	const mm = String(now.getMonth() + 1).padStart(2, "0");
+	const yyyy = now.getFullYear();
+	const wordle = `${dd}-${mm}-${yyyy}`;
+
+	let userId;
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		userId = decoded.id;
+	} catch (err) {
+		return callback({ error: true, details: "Invalid token" });
+	}
+
+	db.get(`SELECT login FROM users WHERE id = ?`, [userId], function (err, row) {
+		if (err || !row) {
+			return callback({ error: true, details: "User not found" });
+		}
+		const login = row.login;
+		db.get(
+			`SELECT time, attempts FROM wordle_participations WHERE login = ? AND wordle = ?`,
+			[login, wordle],
+			function (err, stats) {
+				if (err) return callback({ error: true, details: "DB error" });
+				if (!stats) return callback(null, null);
+				return callback(null, stats);
+			}
+		);
 	});
 };

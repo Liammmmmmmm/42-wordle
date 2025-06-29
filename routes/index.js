@@ -1,5 +1,5 @@
 const express = require('express');
-const { getWordleStats } = require('../controllers/wordle');
+const { getWordleStats, getPersoStats } = require('../controllers/wordle');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
@@ -48,16 +48,21 @@ function is_logged_in(req) {
 router.get('/wordle', (req, res) => {
 	if (!is_logged_in(req)) return res.redirect("/");
 
+	const token = req.cookies?.jwt;
+
 	getWordleStats((err, stats) => {
 		if (err) {
-			res.render('wordle', {
-				leaderboards: null
-			});
-		} else {
-			res.render('wordle', {
-				leaderboards: stats
+			return res.render('wordle', {
+				leaderboards: null,
+				stats: null
 			});
 		}
+		getPersoStats(token, (err2, persoStats) => {
+			res.render('wordle', {
+				leaderboards: stats,
+				stats: err2 ? null : persoStats
+			});
+		});
 	});
 });
 
