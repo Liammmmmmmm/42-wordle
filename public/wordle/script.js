@@ -14,7 +14,6 @@ let hardModeConstraints = {
 	bannedPositions: {}
 };
 
-// Confetti system for pnaessen
 class Confetti {
 	constructor() {
 		this.particles = [];
@@ -617,7 +616,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 copyNotification.classList.remove('show');
             }, 2000);
 
-            // Optional: Change button text temporarily
             const originalHTML = shareButton.innerHTML;
             shareButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
             shareButton.style.backgroundColor = '#5fa35a';
