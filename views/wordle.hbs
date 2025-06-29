@@ -3,18 +3,28 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>42 - Wordle</title>
+	<title>42 - Wordle{{#eq mode "hard"}} (Hard Mode){{/eq}}</title>
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
 	<link rel="stylesheet" href="/wordle/style.css">
 
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<script>
 		window.currentUserLogin = "{{userLogin}}";
+		window.gameMode = "{{mode}}";
 	</script>
 	<script src="/wordle/script.js"></script>
 </head>
 <body>
-	<h1>42 Wordle</h1>
+	<div class="game-header">
+		<h1>42 Wordle</h1>
+		{{#eq mode "hard"}}
+			<div class="hard-mode-indicator">
+				<span class="hard-mode-badge">HARD MODE</span>
+				<div class="hard-mode-description">Revealed hints must be used</div>
+			</div>
+		{{/eq}}
+	</div>
+
 	<div class="grid">
 		<div class="row">
 			<div id="wordle-1-1" class="tile flip"><div class="front"></div><div class="back"></div></div>

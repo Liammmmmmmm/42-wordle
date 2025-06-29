@@ -7,12 +7,11 @@
 	"normal_mode": "MODE NORMAL",
 	"normal_mode_desc": "Expérience Wordle classique",
 	"hard_mode": "MODE DIFFICILE",
-	"hard_mode_desc": "Les indices révélés doivent être utilisés",
-	"hard_mode_desc_plus": "NON DISPONIBLE POUR LE MOMENT",
+	"hard_mode_desc": "Les indices révélés doivent être utilisés dans tous les essais suivants",
 	"rules.p1": "Devinez le mot en 6 essais",
 	"rules.p2": "Chaque essai doit être un mot valide de 5 lettres",
 	"rules.p3": "Vert = lettre correcte à la bonne position",
 	"rules.p4": "Jaune = lettre correcte, mauvaise position",
 	"rules.p5": "Gris = lettre absente du mot",
-	"rules.p6": "Mode difficile : vous devez utiliser les indices révélés"
+	"rules.p6": "Mode difficile : vous devez utiliser les indices révélés dans tous les essais suivants"
 }
