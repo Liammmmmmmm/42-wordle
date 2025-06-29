@@ -9,6 +9,12 @@ body {
 	min-height: 100vh;
 	margin: 0;
 	padding: 2rem;
+	overflow: hidden;
+	min-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 h1 {
@@ -65,14 +71,14 @@ h1 {
 	color: white;
 }
 
-.flip.present .back, .key.present {
-	background-color: #b59f3b;
-	border-color: #b59f3b;
-}
-
 .flip.absent .back, .key.absent {
 	background-color: #3a3a3c;
 	border-color: #3a3a3c;
+}
+
+.flip.present .back, .key.present {
+	background-color: #b59f3b;
+	border-color: #b59f3b;
 }
 
 .flip.correct .back, .key.correct {
@@ -107,4 +113,24 @@ h1 {
 .key.enter,
 .key.backspace {
 	width: 61px;
+}
+
+@keyframes subtle-bounce {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-4px); }
+}
+
+.tile-bounce {
+	animation: subtle-bounce 0.15s ease-out;
+}
+
+
+@keyframes shake-delete {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-2px); }
+	75% { transform: translateX(2px); }
+}
+
+.tile-delete {
+	animation: shake-delete 0.15s ease-in-out;
 }
