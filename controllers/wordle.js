@@ -35,7 +35,7 @@ function getWordOfTheDaySync() {
 	const dd = String(now.getDate()).padStart(2, "0");
 	const dateKey = `${yyyy}-${mm}-${dd}`;
 
-	const saltedDate = `wordle_salt_${dateKey}_random_seed`;
+	const saltedDate = `_wordle_salt_${dateKey}_random_seed`;
 	const index = hashString(saltedDate) % words.length;
 
 	return words[index];

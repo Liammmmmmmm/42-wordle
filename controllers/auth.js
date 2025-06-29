@@ -30,7 +30,7 @@ exports.redirection = async (req, res) => {
 		db.get('SELECT id FROM users WHERE login = ?', [login], (err, row) => {
 			if (err) {
 				console.error(err);
-				return res.status(500).json({ error: true, message: "Database error" });
+				return res.status(401).redirect("/");
 			}
 			let userId = null;
 			if (row) {
@@ -40,7 +40,7 @@ exports.redirection = async (req, res) => {
 				db.run('INSERT INTO users (login, name, image) VALUES (?, ?, ?)', [login, name, image], function(err) {
 					if (err) {
 						console.error(err);
-						return res.status(500).json({ error: true, message: "User creation failed" });
+						return res.status(401).redirect("/");
 					}
 					userId = this.lastID;
 					createAndSendJWT(userId, res);
@@ -49,7 +49,7 @@ exports.redirection = async (req, res) => {
 		});
 	} catch (error) {
 		console.error(error);
-		return res.status(500).json({ error: true, message: "Token exchange failed" });
+		return res.status(401).redirect("/");
 	}
 }
 
