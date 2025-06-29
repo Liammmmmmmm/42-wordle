@@ -1,15 +1,6 @@
 const fs = require("fs");
-const sqlite3 = require('sqlite3').verbose();
-const axios = require('axios');
-const { refreshToken } = require('./auth');
-
-const db = new sqlite3.Database('./dev.db', (err) => {
-	if (err) {
-		console.error(err.message);
-	} else {
-		console.log('Connected to the SQLite database.');
-	}
-});
+const db = require('../db');
+const jwt = require('jsonwebtoken');
 
 const words = [];
 
@@ -79,38 +70,16 @@ exports.saveResults = async (req, res) => {
 	if (!time || !word || !attempts) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (getWordOfTheDaySync() != word) return (res.status(400).json({ error: true, details: "Invalid word" }));
 
-	let access_token = req.cookies?.access_token;
-	const refresh_token = req.cookies?.refresh_token;
-	if (!refresh_token) return res.status(401).json({ error: true, details: "User not logged in" });
-	if (!access_token)
-	{
-		access_token = await refreshToken(res, refresh_token);
-		if (!access_token) return res.status(401).json({ error: true, details: "Invalid refresh token" });
-	}
+	const authHeader = req.headers['authorization'];
+	if (!authHeader) return res.status(401).json({ error: true, details: "Missing token" });
 
-	let login;
+	const token = authHeader.split(' ')[1];
+	let userId;
 	try {
-		const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
-			headers: {
-				Authorization: 'Bearer ' + access_token
-			}
-		});
-		login = userResponse.data.login;
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		userId = decoded.id;
 	} catch (err) {
-
-		access_token = await refreshToken(res, refresh_token);
-		if (!access_token) return res.status(401).json({ error: true, details: "Invalid refresh token" });
-
-		try {
-			const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
-				headers: {
-					Authorization: 'Bearer ' + access_token
-				}
-			});
-			login = userResponse.data.login;
-		} catch (error) {
-			return res.status(401).json({ error: true, details: "Invalid refresh token" });
-		}
+		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
 	if (attempts < 1) attempts = 9999;
@@ -122,20 +91,18 @@ exports.saveResults = async (req, res) => {
 	const yyyy = now.getFullYear();
 	const wordle = `${dd}-${mm}-${yyyy}`;
 
-	const checkSql = `SELECT id FROM wordle_participations WHERE login = ? AND wordle = ?`;
-	db.get(checkSql, [login, wordle], function (err, row) {
-		if (err) {
-			return res.status(500).json({ error: true, details: "DB error" });
-		}
-		if (row) {
-			return res.status(409).json({ error: true, details: "Already participated today" });
-		}
-		const insertSql = `INSERT INTO wordle_participations (login, wordle, time, attempts) VALUES (?, ?, ?, ?)`;
-		db.run(insertSql, [login, wordle, time, attempts], function (err) {
-			if (err) {
-				return res.status(500).json({ error: true, details: "DB error" });
-			}
-			return res.status(200).json({ error: false });
+	db.get(`SELECT login FROM users WHERE id = ?`, [userId], function (err, row) {
+        if (err || !row) {
+            return res.status(500).json({ error: true, details: "User not found" });
+        }
+        const login = row.login;
+		db.get(`SELECT id FROM wordle_participations WHERE login = ? AND wordle = ?`, [login, wordle], function (err, row) {
+			if (err) return res.status(500).json({ error: true, details: "DB error" });
+			if (row) return res.status(409).json({ error: true, details: "Already participated today" });
+			db.run(`INSERT INTO wordle_participations (login, wordle, time, attempts) VALUES (?, ?, ?, ?)`, [login, wordle, time, attempts], function (err) {
+				if (err) return res.status(500).json({ error: true, details: "DB error" });
+				return res.status(200).json({ error: false });
+			});
 		});
 	});
 }
