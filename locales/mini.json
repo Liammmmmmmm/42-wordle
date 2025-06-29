@@ -23,7 +23,7 @@
 	"last_players": "Ultimos jugadores",
 	"fastest_players": "Jugadores mas rapido",
 	"fewest_attempts": "Menos intents usados",
-	"attempts": "intents",
+	"lead.attempts": "intents",
 	"gameover": "JUEGO ACABO!",
 	"win": "GANASTE!",
 	"stats.attempts": "Intents:",

@@ -23,11 +23,12 @@
 	"last_players": "Last players",
 	"fastest_players": "Fastest players",
 	"fewest_attempts": "Fewest attempts",
-	"attempts": "attempts",
+	"lead.attempts": "attempts",
 	"gameover": "GAME OVER!",
 	"win": "WIN!",
 	"stats.attempts": "Attempts:",
 	"stats.time": "Time:",
 	"stats.share": "Share results",
-	"stats.copied": "Copied to clipboard"
+	"stats.copied": "Copied to clipboard",
+	"attemptsc": "attemptsc"
 }

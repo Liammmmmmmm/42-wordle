@@ -23,7 +23,7 @@
 	"last_players": "Derniers joueurs",
 	"fastest_players": "Les plus rapides",
 	"fewest_attempts": "Le moins d'essais",
-	"attempts": "essais",
+	"lead.attempts": "essais",
 	"gameover": "PERDU !",
 	"win": "GAGNÉ !",
 	"stats.attempts": "Essais :",

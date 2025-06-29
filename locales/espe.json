@@ -23,7 +23,7 @@
 	"last_players": "Lastaj ludintoj",
 	"fastest_players": "Plej rapidaj ludintoj",
 	"fewest_attempts": "Malmultaj provoj",
-	"attempts": "provoj",
+	"lead.attempts": "provoj",
 	"gameover": "LUDO FINIĜIS!",
 	"win": "VI GAJNIS!",
 	"stats.attempts": "Provoj:",

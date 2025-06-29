@@ -95,9 +95,9 @@
 			<ul>
 				{{#each leaderboards.fewest_attempts}}
 					{{#eqs attempts 7}}
-						<li>{{login}} <span class="score looser">6 {{ __ "attempts" }}</span></li>
+						<li>{{login}} <span class="score looser">6 {{ __ "lead.attempts" }}</span></li>
 					{{else}}
-						<li>{{login}} <span class="score">{{attempts}} {{ __ "attempts" }}</span></li>
+						<li>{{login}} <span class="score">{{attempts}} {{ __ "lead.attempts" }}</span></li>
 					{{/eqs}}
 				{{/each}}
 			</ul>

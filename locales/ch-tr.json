@@ -23,7 +23,7 @@
 	"last_players": "最近玩家",
 	"fastest_players": "最快完成的玩家",
 	"fewest_attempts": "最少嘗試次數",
-	"attempts": "次嘗試",
+	"lead.attempts": "次嘗試",
 	"gameover": "遊戲結束！",
 	"win": "你贏了！",
 	"stats.attempts": "嘗試次數：",

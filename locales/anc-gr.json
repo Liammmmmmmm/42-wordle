@@ -23,7 +23,7 @@
 	"last_players": "Οἱ ὕστατοι παίοντες",
 	"fastest_players": "Οἱ ταχέως παίοντες",
 	"fewest_attempts": "Ἐν ἐλαχίστοις πειράμασιν νικήσαντες",
-	"attempts": "πειράματα",
+	"lead.attempts": "πειράματα",
 	"gameover": "ΠΑΙΓΝΙΟΝ ΤΕΤΕΛΕΣΤΑΙ!",
 	"win": "ΝΕΝΙΚΗΚΑΣ!",
 	"stats.attempts": "Πειράματα:",

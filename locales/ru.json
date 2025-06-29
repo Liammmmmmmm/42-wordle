@@ -23,7 +23,7 @@
 	"last_players": "Последние игроки",
 	"fastest_players": "Самые быстрые игроки",
 	"fewest_attempts": "Игроки с наименьшим числом попыток",
-	"attempts": "попыток",
+	"lead.attempts": "попыток",
 	"gameover": "ИГРА ОКОНЧЕНА!",
 	"win": "ПОБЕДА!",
 	"stats.attempts": "Попытки:",

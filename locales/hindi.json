@@ -23,7 +23,7 @@
 	"last_players": "हाल के खिलाड़ी",
 	"fastest_players": "सबसे तेज़ खिलाड़ी",
 	"fewest_attempts": "सबसे कम प्रयासों में जीतने वाले",
-	"attempts": "प्रयास",
+	"lead.attempts": "प्रयास",
 	"gameover": "खेल समाप्त!",
 	"win": "जीत!",
 	"stats.attempts": "प्रयास:",

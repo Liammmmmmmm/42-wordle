@@ -23,7 +23,7 @@
 	"last_players": "最近のプレイヤー",
 	"fastest_players": "最速のプレイヤー",
 	"fewest_attempts": "最少試行のプレイヤー",
-	"attempts": "回の試行",
+	"lead.attempts": "回の試行",
 	"gameover": "ゲームオーバー！",
 	"win": "勝利！",
 	"stats.attempts": "試行回数：",

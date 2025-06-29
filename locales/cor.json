@@ -23,7 +23,7 @@
 	"last_players": "최근 플레이어",
 	"fastest_players": "가장 빠른 플레이어",
 	"fewest_attempts": "최소 시도 플레이어",
-	"attempts": "시도",
+	"lead.attempts": "시도",
 	"gameover": "게임 오버!",
 	"win": "승리!",
 	"stats.attempts": "시도 횟수:",
