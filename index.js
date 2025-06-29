@@ -48,6 +48,9 @@ hbs.registerHelper('eqs', function(a, b, options) {
 hbs.registerHelper('eq', function(a, b) {
 	return a === b;
 });
+hbs.registerHelper('gt', function(a, b) {
+	return a > b;
+});
 
 app.set('view engine', 'hbs');
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getWordleStats, getPersoStats } = require('../controllers/wordle');
+const { getWordleStats, getPersoStats, getAvailableDates, getArchiveByDate } = require('../controllers/wordle');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
@@ -89,6 +89,67 @@ router.get('/wordle', (req, res) => {
 					__: res.__
 				});
 			}
+		});
+	});
+});
+
+// Route pour les archives avec navigation par date
+router.get('/archives', (req, res) => {
+	if (!is_logged_in(req)) return res.redirect("/");
+
+	const selectedDate = req.query.date;
+
+	// Récupérer toutes les dates disponibles pour la sidebar
+	getAvailableDates((err, availableDates) => {
+		if (err) {
+			console.error('Error fetching available dates:', err);
+			return res.render('archives', {
+				availableDates: [],
+				selectedArchive: null,
+				error: 'Erreur lors du chargement des archives',
+				locale: req.getLocale(),
+				__: res.__
+			});
+		}
+
+		// Si aucune date n'est sélectionnée, prendre la plus récente
+		let dateToLoad = selectedDate;
+		if (!dateToLoad && availableDates.length > 0) {
+			dateToLoad = availableDates[0].date;
+		}
+
+		// Si aucune archive n'existe
+		if (!dateToLoad) {
+			return res.render('archives', {
+				availableDates: [],
+				selectedArchive: null,
+				selectedDate: null,
+				locale: req.getLocale(),
+				__: res.__
+			});
+		}
+
+		// Récupérer l'archive pour la date sélectionnée
+		getArchiveByDate(dateToLoad, (err, archive) => {
+			if (err) {
+				console.error('Error fetching archive:', err);
+				return res.render('archives', {
+					availableDates,
+					selectedArchive: null,
+					selectedDate: dateToLoad,
+					error: 'Erreur lors du chargement de l\'archive',
+					locale: req.getLocale(),
+					__: res.__
+				});
+			}
+
+			res.render('archives', {
+				availableDates,
+				selectedArchive: archive,
+				selectedDate: dateToLoad,
+				locale: req.getLocale(),
+				__: res.__
+			});
 		});
 	});
 });
