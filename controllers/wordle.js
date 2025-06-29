@@ -56,9 +56,24 @@ exports.validateWord = async (req, res) => {
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
 	console.log(word, dayWord);
+
+	const letterCount = {};
+	for (let letter of dayWord) {
+		letterCount[letter] = (letterCount[letter] || 0) + 1;
+	}
+
 	for (let i = 0; i < 5; i++) {
-		if (word[i] == dayWord[i]) validation[i] = "correct";
-		else if (dayWord.includes(word[i])) validation[i] = "present";
+		if (word[i] === dayWord[i]) {
+			validation[i] = "correct";
+			letterCount[word[i]]--;
+		}
+	}
+
+	for (let i = 0; i < 5; i++) {
+		if (validation[i] === "absent" && letterCount[word[i]] > 0) {
+			validation[i] = "present";
+			letterCount[word[i]]--;
+		}
 	}
 
 	return (res.status(200).json({ error: false, validation: validation }));
