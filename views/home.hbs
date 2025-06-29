@@ -1,51 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>42 - Wordle - homepage</title>
-	<link rel="stylesheet" href="/wordle/home.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>42 - Wordle - homepage</title>
+	<link rel="stylesheet" href="/home.css">
 </head>
 <body>
-    <h1>42 Wordle</h1>
+	<h1>42 Wordle</h1>
 
-    <div class="user-section">
-        {{#if user_data}}
-            <img src="{{user_data.img}}" alt="Profile picture">
-            <p>Bienvenue, {{user_data.name}} !</p>
-        {{else}}
-            <a href="{{login_url}}" class="login-btn">LOGIN</a>
-        {{/if}}
-    </div>
+	<div class="user-section">
+		{{#if user_data}}
+			<img src="{{user_data.img}}" alt="Profile picture">
+			<p>Bienvenue, {{user_data.name}} !</p>
+		{{else}}
+			<a href="{{login_url}}" class="login-btn">Login to play</a>
+		{{/if}}
+	</div>
 
-    <div class="games-section">
-        <h2 class="game-title">WORDLE</h2>
+	{{#if user_data}}
+		<div class="games-section">
+			<h2 class="game-title">WORDLE</h2>
 
-        <div class="wordle-modes">
-            <a href="/wordle?mode=normal" class="mode-card normal" onclick="setMode(event, 'normal')">
-                <div class="mode-name">NORMAL MODE</div>
-                <div class="mode-description">Classic Wordle experience</div>
-            </a>
+			<div class="wordle-modes">
+				<a href="/wordle?mode=normal" class="mode-card normal">
+					<div class="mode-name">NORMAL MODE</div>
+					<div class="mode-description">Classic Wordle experience</div>
+				</a>
 
-            <a href="/wordle?mode=hard" class="mode-card hard" onclick="setMode(event, 'hard')">
-                <div class="mode-name">HARD MODE</div>
-                <div class="mode-description">Revealed hints must be used</div>
-                <div class="mode-description-temp">POUR PLUS TARD</div>
-            </a>
-        </div>
-    </div>
+				<a href="/wordle?mode=hard" class="mode-card hard">
+					<div class="mode-name">HARD MODE</div>
+					<div class="mode-description">Revealed hints must be used</div>
+					<div class="mode-description-temp">POUR PLUS TARD</div>
+				</a>
+			</div>
+		</div>
+	{{/if}}
 
-    <details class="how-to-play" id="howToPlay">
-        <summary>How to play Wordle</summary>
-        <div class="rules-content">
-            <div class="rule">• Guess the word in 6 tries</div>
-            <div class="rule">• Each guess must be a valid 5-letter word</div>
-            <div class="rule">• Green = correct letter & position</div>
-            <div class="rule">• Yellow = correct letter, wrong position</div>
-            <div class="rule">• Gray = letter not in word</div>
-            <div class="rule">• Hard mode: you must use revealed hints</div>
-        </div>
-    </details>
+	<details class="how-to-play" id="howToPlay">
+		<summary>How to play Wordle</summary>
+		<div class="rules-content">
+			<div class="rule">• Guess the word in 6 tries</div>
+			<div class="rule">• Each guess must be a valid 5-letter word</div>
+			<div class="rule">• Green = correct letter & position</div>
+			<div class="rule">• Yellow = correct letter, wrong position</div>
+			<div class="rule">• Gray = letter not in word</div>
+			<div class="rule">• Hard mode: you must use revealed hints</div>
+		</div>
+	</details>
 
+	<script src="/home.js"></script>
 </body>
 </html>
