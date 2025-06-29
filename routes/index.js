@@ -52,12 +52,16 @@ router.get('/wordle', (req, res) => {
 	if (!is_logged_in(req)) return res.redirect("/");
 
 	const token = req.cookies?.jwt;
+	const mode = req.query.mode || 'normal';
+
+	const gameMode = ['normal', 'hard'].includes(mode) ? mode : 'normal';
 
 	getWordleStats((err, stats) => {
 		if (err) {
 			return res.render('wordle', {
 				leaderboards: null,
 				stats: null,
+				mode: gameMode,
 				__: res.__
 			});
 		}
@@ -69,6 +73,7 @@ router.get('/wordle', (req, res) => {
 						leaderboards: stats,
 						stats: err2 ? null : persoStats,
 						userLogin: user ? user.login : null,
+						mode: gameMode,
 						__: res.__
 					});
 				});
@@ -77,12 +82,12 @@ router.get('/wordle', (req, res) => {
 					leaderboards: stats,
 					stats: err2 ? null : persoStats,
 					userLogin: null,
+					mode: gameMode,
 					__: res.__
 				});
 			}
 		});
 	});
 });
-
 
 module.exports = router;

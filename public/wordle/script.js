@@ -6,6 +6,13 @@ const	position = {
 let start_time = undefined;
 let pause_event = false;
 let isPnaessen = window.currentUserLogin === 'pnaessen';
+let gameMode = window.gameMode || 'normal';
+
+let hardModeConstraints = {
+	requiredLetters: new Set(),
+	correctPositions: {},
+	bannedPositions: {}
+};
 
 // Confetti system for pnaessen
 class Confetti {
@@ -132,6 +139,75 @@ window.addEventListener("load", (event) => {
 	}
 });
 
+function showHardModeError(message) {
+	const errorDiv = document.createElement('div');
+	errorDiv.className = 'hard-mode-error';
+	errorDiv.textContent = message;
+	document.body.appendChild(errorDiv);
+
+	setTimeout(() => {
+		errorDiv.style.animation = 'errorFadeIn 0.3s ease reverse';
+		setTimeout(() => {
+			document.body.removeChild(errorDiv);
+		}, 300);
+	}, 2000);
+}
+
+function validateHardModeConstraints(word) {
+	if (gameMode !== 'hard') return { valid: true };
+
+	for (let pos in hardModeConstraints.correctPositions) {
+		const requiredLetter = hardModeConstraints.correctPositions[pos];
+		if (word[pos - 1].toUpperCase() !== requiredLetter) {
+			return {
+				valid: false,
+				message: `Position ${pos} must be ${requiredLetter}`
+			};
+		}
+	}
+
+	for (let letter of hardModeConstraints.requiredLetters) {
+		if (!word.toUpperCase().includes(letter)) {
+			return {
+				valid: false,
+				message: `Word must contain ${letter}`
+			};
+		}
+	}
+
+	for (let letter in hardModeConstraints.bannedPositions) {
+		for (let bannedPos of hardModeConstraints.bannedPositions[letter]) {
+			if (word[bannedPos - 1].toUpperCase() === letter) {
+				return {
+					valid: false,
+					message: `${letter} cannot be in position ${bannedPos}`
+				};
+			}
+		}
+	}
+
+	return { valid: true };
+}
+
+function updateHardModeConstraints(word, validation) {
+	if (gameMode !== 'hard') return;
+
+	for (let i = 0; i < 5; i++) {
+		const letter = word[i].toUpperCase();
+		const result = validation[i];
+
+		if (result === 'correct') {
+			hardModeConstraints.correctPositions[i + 1] = letter;
+			hardModeConstraints.requiredLetters.add(letter);
+		} else if (result === 'present') {
+			hardModeConstraints.requiredLetters.add(letter);
+			if (!hardModeConstraints.bannedPositions[letter]) {
+				hardModeConstraints.bannedPositions[letter] = [];
+			}
+			hardModeConstraints.bannedPositions[letter].push(i + 1);
+		}
+	}
+}
 
 function isalpha(ch) {
 	return (/^[A-Z]$/i.test(ch));
@@ -158,7 +234,6 @@ function setKeyboardTileColor(key, keyState) {
 	targetButton.classList.remove('absent', 'present', 'correct');
 	targetButton.classList.add(keyState);
 }
-
 
 function shakeCurrentRow() {
     for (let x = 1; x <= 5; x++) {
@@ -231,6 +306,8 @@ function saveGameState() {
 		date: new Date().toDateString(),
 		position: {...position},
 		start_time,
+		gameMode,
+		hardModeConstraints: JSON.parse(JSON.stringify(hardModeConstraints)),
 		tiles: []
 	};
 	const state_keyboard = {
@@ -274,9 +351,23 @@ function loadGameState() {
 		return ;
 	}
 
+	if (state.gameMode && state.gameMode !== gameMode) {
+		delCookie('wordle_state');
+		delCookie('keyboard_state');
+		return;
+	}
+
 	position.x = state.position.x;
 	position.y = state.position.y;
 	start_time = state.start_time;
+
+	if (state.hardModeConstraints) {
+		hardModeConstraints = {
+			requiredLetters: new Set(state.hardModeConstraints.requiredLetters),
+			correctPositions: state.hardModeConstraints.correctPositions || {},
+			bannedPositions: state.hardModeConstraints.bannedPositions || {}
+		};
+	}
 
 	for (let y = 1; y <= 6; y++) {
 		for (let x = 1; x <= 5; x++) {
@@ -296,7 +387,6 @@ function loadGameState() {
 		}
 	});
 }
-
 
 addEventListener("keydown", (event) => {
 	if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') return ;
@@ -330,21 +420,31 @@ function keyaction(key) {
 			return ;
 		}
 
-		pause_event = true;
 		const word = `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`;
+
+		const validation = validateHardModeConstraints(word);
+		if (!validation.valid) {
+			showHardModeError(validation.message);
+			shakeCurrentRow();
+			return;
+		}
+
+		pause_event = true;
 
 		axios.post('/api/wordle/validateword', {
 			word: word
 		})
 		.then(function (response) {
 			const validation = response.data.validation;
+
+			updateHardModeConstraints(word, validation);
+
 			flipTile({x: 1, y: position.y}, validation[0]);
 			setTimeout(() => flipTile({x: 2, y: position.y}, validation[1]), 200);
 			setTimeout(() => flipTile({x: 3, y: position.y}, validation[2]), 400);
 			setTimeout(() => flipTile({x: 4, y: position.y}, validation[3]), 600);
 			setTimeout(() => {
 				flipTile({x: 5, y: position.y}, validation[4]);
-
 
 				position.y++;
 				position.x = 1;
@@ -412,12 +512,15 @@ function openPopUpLoose() {
 	document.getElementById("modalTitle").classList.add("lose");
 }
 
-
 function generateShareText() {
     const date = new Date();
     const dateStr = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
 
-    let shareText = `42 Wordle ${dateStr} ${position.y - 1}/6\n\n`;
+    let shareText = `42 Wordle ${dateStr} ${position.y - 1}/6`;
+    if (gameMode === 'hard') {
+        shareText += ' (Hard Mode)';
+    }
+    shareText += '\n\n';
 
     for (let row = 1; row < position.y; row++) {
         let rowText = '';
