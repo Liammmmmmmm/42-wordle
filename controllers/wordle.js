@@ -113,6 +113,9 @@ exports.saveResults = async (req, res) => {
 		}
 	}
 
+	if (atempts < 1) atempts = 9999;
+	if (time < 0) time = 999999;
+
 	const now = new Date();
 	const dd = String(now.getDate()).padStart(2, "0");
 	const mm = String(now.getMonth() + 1).padStart(2, "0");

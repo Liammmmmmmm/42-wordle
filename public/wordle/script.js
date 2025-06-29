@@ -5,6 +5,8 @@ const	position = {
 	y: 1
 };
 
+let start_time = undefined;
+
 let pause_event = false;
 
 function isalpha(ch) {
@@ -100,7 +102,8 @@ function flipTile(pos, type) {
 addEventListener("keydown", (event) => keyaction(event.key));
 
 function keyaction(key) {
-	if (pause_event) return  ;
+	if (pause_event) return ;
+	if (!start_time) start_time = Date.now();
 	if (isalpha(key) && position.y <= 6 && position.x <= 5)
 	{
 		setLetter(position, key);
@@ -141,6 +144,9 @@ function keyaction(key) {
 
 				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
 					toast_success("Congratulations !");
+
+					saveResults(word);
+					
 					pause_event = true;
 					return  ;
 				}
@@ -158,15 +164,12 @@ function keyaction(key) {
 	}
 }
 
-function saveResults()
+function saveResults(word)
 {
 	axios.post('/api/wordle/saveresults', {
-		word: `${getLetter({x: 1, y: position.y})}${getLetter({x: 2, y: position.y})}${getLetter({x: 3, y: position.y})}${getLetter({x: 4, y: position.y})}${getLetter({x: 5, y: position.y})}`,
-		time: 100,
-		atempts: 3
-	})
-	.then(function (response) {
-		console.log(response);		
+		word: word,
+		time: (Date.now() - start_time) / 1000,
+		atempts: position.y - 1
 	})
 	.catch(function (error) {
 		console.log(error);
