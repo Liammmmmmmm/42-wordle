@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const i18n = require('i18n');
+const hbs = require('hbs');
 
 const app = express();
 
@@ -17,13 +18,20 @@ const publicDirectory = path.join(__dirname, './public');
 app.use(express.static(publicDirectory));
 
 i18n.configure({
-	locales: ['en', 'fr'],
+	locales: ['en', 'fr', 'jp', 'anc-gr', 'ru', 'hindi', 'ch-tr', 'cor', 'espe', 'mini', 'klin'],
 	directory: path.join(__dirname, 'locales'),
 	defaultLocale: 'en',
 	cookie: 'lang',
 	queryParameter: 'lang'
 });
-  
+
+app.use((req, res, next) => {
+	if (req.query.lang) {
+		res.cookie('lang', req.query.lang, { maxAge: 900000, httpOnly: false });
+	}
+	next();
+});
+
 app.use(i18n.init);
 
 app.use(express.urlencoded({ extended: false }));
@@ -31,9 +39,14 @@ app.use(express.json());
 
 // exports.io = io;
 
-const hbs = require('hbs');
-hbs.registerHelper('eq', function(a, b, options) {
+hbs.registerHelper('__', function () {
+    return i18n.__.apply(this, arguments);
+});
+hbs.registerHelper('eqs', function(a, b, options) {
   return a === b ? options.fn(this) : options.inverse(this);
+});
+hbs.registerHelper('eq', function(a, b) {
+	return a === b;
 });
 
 app.set('view engine', 'hbs');

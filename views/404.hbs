@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
-	<title>404 - Page non trouvée</title>
+	<title>{{__ "404title"}}</title>
 	<style>
 		body {
 			background-color: #121213;
@@ -261,7 +261,7 @@
 	</div>
 	<div class="error-container">
 		<h1 class="error-code">404</h1>
-		<h2 class="error-title">Oops! Page non trouvée</h2>
+		<h2 class="error-title">{{ __ "notfound_sub" }}</h2>
 		<div class="wordle-tiles">
 			<div class="tile">E</div>
 			<div class="tile">R</div>
@@ -270,11 +270,11 @@
 			<div class="tile">R</div>
 		</div>
 		<p class="error-message">
-			Désolé, la page que vous recherchez semble avoir disparu dans les méandres du web.
-			Peut-être avez-vous fait une faute de frappe, ou peut-être que cette page n'existe tout simplement pas.
+			{{ __ "404text1" }}
+			{{ __ "404text2" }}
 		</p>
 		<div class="home-button">
-			<a href="/" class="home-link">← Retour à l'accueil</a>
+			<a href="/" class="home-link">← {{ __ "backhome" }}</a>
 		</div>
 	</div>
 	<script>
