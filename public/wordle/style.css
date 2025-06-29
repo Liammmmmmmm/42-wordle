@@ -194,8 +194,12 @@ h1 {
     text-decoration: underline;
 }
 
+.hide-modal {
+	display: none;
+}
+
 .modal {
-    display: none;
+    /* display: none; */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -263,18 +267,6 @@ h1 {
 
 #modalTitle.lose {
     color: #ff6b6b;
-}
-
-#modalMessage {
-    color: #d7dadc;
-    margin-bottom: 1.5rem;
-    font-size: 1.1rem;
-}
-
-#correctWord {
-    color: #538d4e;
-    font-weight: bold;
-    text-transform: uppercase;
 }
 
 #gameStats {

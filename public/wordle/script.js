@@ -6,7 +6,6 @@ const	position = {
 };
 
 let start_time = undefined;
-
 let pause_event = false;
 
 function isalpha(ch) {
@@ -141,20 +140,25 @@ function keyaction(key) {
 				position.y++;
 				position.x = 1;
 				pause_event = false;
-
-				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
-					toast_success("Congratulations !");
-
-					saveResults(word);
-					
-					pause_event = true;
-					return  ;
-				}
 				setTimeout(() => {
 					for (let i = 0; i < 5; i++) {
 						setKeyboardTileColor(word[i], validation[i]);
 					}
 				}, 550);
+				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
+					toast_success("Congratulations !");
+
+					saveResults(word);
+
+					pause_event = true;
+					return  ;
+				}
+				else if (position.y === 7)
+				{
+					document.getElementById("attemptCount").innerText = position.y - 1;
+					document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
+					setTimeout(openPopUpLoose, 800);
+				}
 			}, 800);
 		})
 		.catch(function (error) {
@@ -174,4 +178,18 @@ function saveResults(word)
 	.catch(function (error) {
 		console.log(error);
 	})
+	document.getElementById("attemptCount").innerText = position.y - 1;
+	document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
+	setTimeout(openPopUpWin, 800);
+}
+
+function openPopUpWin() {
+	document.getElementById("gameOverModal").classList.remove("hide-modal");
+	document.getElementById("modalTitle").classList.add("win");
+	document.getElementById("modalTitle").innerText = "You Win!";
+}
+
+function openPopUpLoose() {
+	document.getElementById("gameOverModal").classList.remove("hide-modal");
+	document.getElementById("modalTitle").classList.add("lose");
 }
