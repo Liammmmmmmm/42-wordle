@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const words = [];
 
+const players_data = {};
+
 fs.readFile('./words.txt', 'utf8', (err, data) => {
 	if (err) {
 		console.error(err);
@@ -28,12 +30,16 @@ function hashString(str) {
 	return Math.abs(hash);
 }
 
-function getWordOfTheDaySync() {
+function getFormatedDate() {
 	const now = new Date();
 	const yyyy = now.getFullYear();
 	const mm = String(now.getMonth() + 1).padStart(2, "0");
 	const dd = String(now.getDate()).padStart(2, "0");
-	const dateKey = `${yyyy}-${mm}-${dd}`;
+	return `${yyyy}-${mm}-${dd}`;
+}
+
+function getWordOfTheDaySync() {
+	const dateKey = getFormatedDate();
 
 	const saltedDate = `_wordle_salt_${dateKey}_random_seed`;
 	const index = hashString(saltedDate) % words.length;
@@ -47,11 +53,26 @@ exports.validateWord = async (req, res) => {
 	if (!word) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (!words.includes(word)) return (res.status(404).json({ error: true, details: "Invalid word" }));
 
+	const token = req.cookies?.jwt;
+	let userId;
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		userId = decoded.id;
+	} catch (err) {
+		return res.status(401).json({ error: true, details: "Invalid token" });
+	}
+	if (players_data.id) if (players_data.id.date != getFormatedDate()) players_data.id = null;
+
+	if (!players_data.id) return res.status(401).json({ error: true, details: "Bro you didn't even started the game" });
+
+	players_data.id.attempts++;
+
+	console.log(attempts);
+
 	const dayWord = getWordOfTheDaySync();
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
-	console.log(word, dayWord);
 	for (let i = 0; i < 5; i++) {
 		if (word[i] == dayWord[i]) validation[i] = "correct";
 		else if (dayWord.includes(word[i])) validation[i] = "present";
@@ -60,7 +81,20 @@ exports.validateWord = async (req, res) => {
 	return (res.status(200).json({ error: false, validation: validation }));
 }
 
+exports.startTyping = async (req, res) => {
+	const token = req.cookies?.jwt;
+	let userId;
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		userId = decoded.id;
+	} catch (err) {
+		return res.status(401).json({ error: true, details: "Invalid token" });
+	}
 
+	if (players_data.id) if (players_data.id.date != getFormatedDate()) players_data.id = null;
+
+	players_data.id = { start_time: Date.now(), attempts: 0, date: getFormatedDate() };
+}
 
 exports.saveResults = async (req, res) => {
 	let time = req.body?.time;
@@ -106,11 +140,7 @@ exports.saveResults = async (req, res) => {
 }
 
 exports.getWordleStats = (callback) => {
-	const now = new Date();
-	const dd = String(now.getDate()).padStart(2, "0");
-	const mm = String(now.getMonth() + 1).padStart(2, "0");
-	const yyyy = now.getFullYear();
-	const wordle = `${dd}-${mm}-${yyyy}`;
+	const wordle = getFormatedDate();
 
 	const fastestSql = `
 		SELECT login, time, attempts FROM wordle_participations
