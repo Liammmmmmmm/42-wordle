@@ -143,13 +143,38 @@ router.get('/archives', (req, res) => {
 				});
 			}
 
-			res.render('archives', {
-				availableDates,
-				selectedArchive: archive,
-				selectedDate: dateToLoad,
-				locale: req.getLocale(),
-				__: res.__
-			});
+			const token = req.cookies?.jwt;
+			let userId = null;
+			if (token) {
+				try {
+					const decoded = jwt.verify(token, process.env.JWT_SECRET);
+					userId = decoded.id;
+				} catch (e) {
+					console.error('JWT verification failed:', e);
+				}
+			}
+			if (userId) {
+				const now = new Date();
+				const dd = String(now.getDate()).padStart(2, "0");
+				const mm = String(now.getMonth() + 1).padStart(2, "0");
+				const yyyy = now.getFullYear();
+				const wordle = `${dd}-${mm}-${yyyy}`;
+
+				db.get('SELECT wp.* FROM wordle_participations wp JOIN users u ON wp.login = u.login WHERE wp.wordle = ? AND u.id = ?', [wordle, userId], (err, row) => {
+					
+					if (err || !row) {
+						archive.wordOfTheDay = "HIDDEN WORD"
+					}
+					res.render('archives', {
+						availableDates,
+						selectedArchive: archive,
+						selectedDate: dateToLoad,
+						locale: req.getLocale(),
+						__: res.__
+					});
+				});
+				return;
+			}
 		});
 	});
 });

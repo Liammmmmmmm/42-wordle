@@ -282,7 +282,7 @@ exports.getArchiveByDate = (dateStringOrReq, callbackOrRes = null, res = null) =
 
 			db.all(allPlayersSql, [dateString], (err, allPlayers) => {
 				if (err) return callback(err);
-
+				
 				const archive = {
 					date: dateString,
 					formattedDate: `${dd}/${mm}/${yyyy}`,
