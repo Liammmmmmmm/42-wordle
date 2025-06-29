@@ -193,3 +193,160 @@ h1 {
     opacity: 0.7;
     text-decoration: underline;
 }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #1a1a1b;
+    margin: 10% auto;
+    padding: 2rem;
+    border: 2px solid #3a3a3c;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close {
+    color: #818384;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover,
+.close:focus {
+    color: #ffffff;
+}
+
+#modalTitle {
+    color: #ffffff;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+#modalTitle.win {
+    color: #31d7dd;
+}
+
+#modalTitle.lose {
+    color: #ff6b6b;
+}
+
+#modalMessage {
+    color: #d7dadc;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+#correctWord {
+    color: #538d4e;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#gameStats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    color: #818384;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.stat span:last-child {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#shareResult {
+    margin: 1.5rem 0;
+    font-family: monospace;
+    line-height: 1.2;
+    font-size: 1.2rem;
+}
+
+.share-btn {
+    background-color: #538d4e;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.share-btn:hover {
+    background-color: #5fa35a;
+    transform: translateY(-1px);
+}
+
+.share-btn:active {
+    transform: translateY(0);
+}
+
+.copy-notification {
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #538d4e;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.copy-notification.show {
+    opacity: 1;
+}
