@@ -171,3 +171,25 @@ h1 {
     color: #ffd700;
     font-weight: bold;
 }
+
+.back-to-home {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.home-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.home-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
