@@ -89,6 +89,10 @@ h1 {
 	border-color: #b59f3b;
 }
 
+.mode-card.archives:hover {
+	border-color: #d41508;
+}
+
 .mode-name {
 	font-size: 1.2rem;
 	font-weight: bold;
@@ -101,6 +105,10 @@ h1 {
 
 .mode-card.normal .mode-name {
 	color: #538d4e;
+}
+
+.mode-card.archives .mode-name {
+	color: #b59f3b;
 }
 
 .mode-description {

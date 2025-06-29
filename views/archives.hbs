@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
+	<title>42 Wordle - Archives</title>
+	<link rel="stylesheet" href="/archives/archives.css">
+</head>
+<body>
+	<div class="archives-layout">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<div class="sidebar-header">
+				<h2>📚 Archives</h2>
+				<div class="navigation-buttons">
+					<a href="/" class="nav-btn home-btn">🏠</a>
+					<a href="/wordle" class="nav-btn play-btn">🎮</a>
+				</div>
+			</div>
+
+			{{#if availableDates.length}}
+				<div class="dates-list">
+					<h3>Dates disponibles</h3>
+					<div class="dates-container">
+						{{#each availableDates}}
+							<a href="/archives?date={{date}}"
+							   class="date-item {{#if (eq date ../selectedDate)}}active{{/if}}"
+							   data-date="{{date}}">
+								<div class="date-display">{{displayDate}}</div>
+								<div class="date-short">{{formattedDate}}</div>
+							</a>
+						{{/each}}
+					</div>
+				</div>
+			{{else}}
+				<div class="no-dates">
+					<p>Aucune archive disponible</p>
+					<a href="/wordle" class="play-now-btn">Jouer maintenant</a>
+				</div>
+			{{/if}}
+		</div>
+
+		<!-- Main content -->
+		<div class="main-content">
+			{{#if error}}
+				<div class="error-message">
+					<h2>❌ Erreur</h2>
+					<p>{{error}}</p>
+				</div>
+			{{else if selectedArchive}}
+				<div class="archive-header">
+					<div class="archive-title">
+						<h1>📅 {{selectedArchive.displayDate}}</h1>
+						<div class="word-reveal">
+							<span class="word-label">Mot du jour :</span>
+							<span class="word-of-day">{{selectedArchive.wordOfTheDay}}</span>
+						</div>
+					</div>
+					<div class="archive-stats">
+						<div class="stat-card">
+							<span class="stat-value">{{selectedArchive.totalPlayers}}</span>
+							<span class="stat-label">Joueur{{#if (gt selectedArchive.totalPlayers 1)}}s{{/if}}</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="content-grid">
+					<!-- Leaderboards -->
+					<div class="leaderboards-section">
+						<div class="leaderboard fastest">
+							<h3>⚡ Les plus rapides</h3>
+							<div class="leaderboard-content">
+								{{#if selectedArchive.stats.fastest.length}}
+									{{#each selectedArchive.stats.fastest}}
+										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
+											<span class="rank">{{@index}}</span>
+											<span class="player-name">{{login}}</span>
+											{{#if (eq attempts 7)}}
+												<span class="score failed">❌ Échec</span>
+											{{else}}
+												<span class="score">⏱️ {{time}}s</span>
+											{{/if}}
+										</div>
+									{{/each}}
+								{{else}}
+									<div class="no-data">Aucune donnée</div>
+								{{/if}}
+							</div>
+						</div>
+
+						<div class="leaderboard fewest">
+							<h3>🎯 Moins d'essais</h3>
+							<div class="leaderboard-content">
+								{{#if selectedArchive.stats.fewest_attempts.length}}
+									{{#each selectedArchive.stats.fewest_attempts}}
+										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
+											<span class="rank">{{@index}}</span>
+											<span class="player-name">{{login}}</span>
+											{{#if (eq attempts 7)}}
+												<span class="score failed">❌ Échec</span>
+											{{else}}
+												<span class="score">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}}</span>
+											{{/if}}
+										</div>
+									{{/each}}
+								{{else}}
+									<div class="no-data">Aucune donnée</div>
+								{{/if}}
+							</div>
+						</div>
+					</div>
+
+					<!-- All Players Grid -->
+					<div class="all-players-section">
+						<h3>👥 Tous les participants ({{selectedArchive.totalPlayers}})</h3>
+						<div class="players-grid">
+							{{#each selectedArchive.stats.allPlayers}}
+								<div class="player-card {{#if (eq attempts 7)}}failed{{/if}}">
+									<div class="player-info">
+										<div class="player-name">{{login}}</div>
+										{{#if (eq attempts 7)}}
+											<div class="player-result failed">❌ Échec</div>
+										{{else}}
+											<div class="player-stats">
+												<span class="attempts">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}}</span>
+												<span class="time">⏱️ {{time}}s</span>
+											</div>
+										{{/if}}
+									</div>
+								</div>
+							{{/each}}
+						</div>
+					</div>
+				</div>
+			{{else}}
+				<div class="no-archive-selected">
+					<div class="placeholder-content">
+						<h2>📋 Sélectionnez une date</h2>
+						<p>Choisissez une date dans la sidebar pour voir les archives</p>
+						{{#if availableDates.length}}
+							<button onclick="selectFirstDate()" class="select-date-btn">
+								Voir la plus récente
+							</button>
+						{{/if}}
+					</div>
+				</div>
+			{{/if}}
+		</div>
+	</div>
+
+	<!-- Mobile toggle button -->
+	<button class="mobile-toggle" onclick="toggleSidebar()">
+		<span class="toggle-icon">☰</span>
+	</button>
+
+	<script>
+		function toggleSidebar() {
+			const sidebar = document.querySelector('.sidebar');
+			sidebar.classList.toggle('open');
+		}
+
+		function selectFirstDate() {
+			const firstDateLink = document.querySelector('.date-item');
+			if (firstDateLink) {
+				window.location.href = firstDateLink.href;
+			}
+		}
+
+		// Auto-close sidebar on mobile after selection
+		document.querySelectorAll('.date-item').forEach(item => {
+			item.addEventListener('click', () => {
+				if (window.innerWidth <= 768) {
+					setTimeout(() => {
+						document.querySelector('.sidebar').classList.remove('open');
+					}, 100);
+				}
+			});
+		});
+
+		// Close sidebar when clicking outside on mobile
+		document.addEventListener('click', (e) => {
+			if (window.innerWidth <= 768) {
+				const sidebar = document.querySelector('.sidebar');
+				const toggle = document.querySelector('.mobile-toggle');
+
+				if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+					sidebar.classList.remove('open');
+				}
+			}
+		});
+	</script>
+</body>
+</html>
