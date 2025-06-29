@@ -26,14 +26,16 @@ function hashString(str) {
 	return Math.abs(hash);
 }
 
-function getWordOfTheDay() {
+function getWordOfTheDaySync() {
 	const now = new Date();
 	const yyyy = now.getFullYear();
 	const mm = String(now.getMonth() + 1).padStart(2, "0");
 	const dd = String(now.getDate()).padStart(2, "0");
-	const key = `${yyyy}-${mm}-${dd}`;
+	const dateKey = `${yyyy}-${mm}-${dd}`;
 
-	const index = hashString(key) % words.length;
+	const saltedDate = `wordle_salt_${dateKey}_random_seed`;
+	const index = hashString(saltedDate) % words.length;
+
 	return words[index];
 }
 
@@ -43,7 +45,7 @@ exports.validateWord = async (req, res) => {
 	if (!word) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (!words.includes(word)) return (res.status(404).json({ error: true, details: "Invalid word" }));
 
-	const dayWord = getWordOfTheDay();
+	const dayWord = getWordOfTheDaySync();
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
