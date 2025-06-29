@@ -49,7 +49,7 @@ exports.redirection = async (req, res) => {
  * 
  * @param {*} res 
  * @param {String} refresh_token_og
- * @returns {Boolean} Success
+ * @returns {String} new access token
  */
 async function refreshToken(res, refresh_token_og)
 {
@@ -76,9 +76,9 @@ async function refreshToken(res, refresh_token_og)
 			secure: false
 		});
 
-		return true;
+		return access_token;
 	} catch (error) {
-		return false;
+		return null;
 	}
 }
 exports.refreshToken = refreshToken;

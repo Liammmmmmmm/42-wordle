@@ -82,7 +82,8 @@ exports.saveResults = async (req, res) => {
 	if (!refresh_token) return res.status(401).json({ error: true, details: "User not logged in" });
 	if (!access_token)
 	{
-		if (!await refreshToken(res, refresh_token)) return res.status(401).json({ error: true, details: "Invalid refresh token" });
+		access_token = await refreshToken(res, refresh_token);
+		if (!access_token) return res.status(401).json({ error: true, details: "Invalid refresh token" });
 	}
 
 	let login;
@@ -95,7 +96,8 @@ exports.saveResults = async (req, res) => {
 		login = userResponse.data.login;
 	} catch (err) {
 
-		if (!await refreshToken(res, refresh_token)) return res.status(401).json({ error: true, details: "Invalid refresh token" });
+		access_token = await refreshToken(res, refresh_token);
+		if (!access_token) return res.status(401).json({ error: true, details: "Invalid refresh token" });
 
 		try {
 			const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
