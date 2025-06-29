@@ -1,5 +1,3 @@
-
-
 const	position = {
 	x: 1,
 	y: 1
@@ -7,6 +5,109 @@ const	position = {
 
 let start_time = undefined;
 let pause_event = false;
+let isPnaessen = window.currentUserLogin === 'pnaessen';
+
+// Confetti system for pnaessen
+class Confetti {
+	constructor() {
+		this.particles = [];
+		this.canvas = null;
+		this.ctx = null;
+		this.animationId = null;
+	}
+
+	init() {
+		this.canvas = document.createElement('canvas');
+		this.canvas.style.position = 'fixed';
+		this.canvas.style.top = '0';
+		this.canvas.style.left = '0';
+		this.canvas.style.width = '100%';
+		this.canvas.style.height = '100%';
+		this.canvas.style.pointerEvents = 'none';
+		this.canvas.style.zIndex = '9999';
+		document.body.appendChild(this.canvas);
+
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight;
+		this.ctx = this.canvas.getContext('2d');
+
+	}
+
+	createParticle() {
+		return {
+			x: Math.random() * this.canvas.width,
+			y: -10,
+			vx: (Math.random() - 0.5) * 2,
+			vy: Math.random() * 3 + 2,
+			size: Math.random() * 4 + 2,
+			color: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'][Math.floor(Math.random() * 6)],
+			angle: Math.random() * 360,
+			angleSpeed: (Math.random() - 0.5) * 10
+		};
+	}
+
+	burst(duration = 5000, intensity = 2) {
+		if (!this.canvas) this.init();
+
+		const startTime = Date.now();
+		const animate = () => {
+			const elapsed = Date.now() - startTime;
+
+			if (elapsed < duration) {
+				// Add new particles
+				for (let i = 0; i < intensity; i++) {
+					this.particles.push(this.createParticle());
+				}
+			}
+
+			// Clear canvas
+			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+			// Update and draw particles
+			this.particles = this.particles.filter(particle => {
+				particle.x += particle.vx;
+				particle.y += particle.vy;
+				particle.vy += 0.1; // gravity
+				particle.angle += particle.angleSpeed;
+
+				if (particle.y > this.canvas.height) return false;
+
+				this.ctx.save();
+				this.ctx.translate(particle.x, particle.y);
+				this.ctx.rotate(particle.angle * Math.PI / 180);
+				this.ctx.fillStyle = particle.color;
+				this.ctx.fillRect(-particle.size/2, -particle.size/2, particle.size, particle.size);
+				this.ctx.restore();
+
+				return true;
+			});
+
+			if (this.particles.length > 0 || elapsed < duration) {
+				this.animationId = requestAnimationFrame(animate);
+			} else {
+				this.cleanup();
+			}
+		};
+		animate();
+	}
+
+	quickBurst() {
+		this.burst(500, 6);
+	}
+
+	cleanup() {
+		if (this.animationId) {
+			cancelAnimationFrame(this.animationId);
+		}
+		if (this.canvas && this.canvas.parentNode) {
+			this.canvas.parentNode.removeChild(this.canvas);
+			this.canvas = null;
+		}
+		this.particles = [];
+	}
+}
+
+const confetti = new Confetti();
 
 window.addEventListener("load", (event) => {
 	loadGameState();
@@ -24,6 +125,10 @@ window.addEventListener("load", (event) => {
 			displayShareResult();
 			originalOpenPopUpWin();
 		}
+	}
+
+	if (isPnaessen) {
+		confetti.burst(5000, 5);
 	}
 });
 
@@ -206,6 +311,10 @@ function keyaction(key) {
 		setLetter(position, key);
 		position.x++;
 		saveGameState();
+
+		if (isPnaessen) {
+			confetti.quickBurst();
+		}
 	}
 	else if ((key == "Delete" || key == "Backspace") && position.y >= 1 && position.x > 1)
 	{
