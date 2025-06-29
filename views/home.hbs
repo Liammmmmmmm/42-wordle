@@ -4,49 +4,49 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
-	<title>42 - Wordle - homepage</title>
+	<title>42 Wordle - homepage</title>
 	<link rel="stylesheet" href="/home/home.css">
 </head>
 <body>
-	<h1>42 Wordle</h1>
+	<h1>{{__ "title"}}</h1>
 
 	<div class="user-section">
 		{{#if user_data}}
-			<img src="{{user_data.img}}" alt="Profile picture">
-			<p>Bienvenue, {{user_data.name}} !</p>
+			<img src="{{user_data.image}}" alt="Profile picture">
+			<p>{{__ "welcome"}}{{user_data.name}}!</p>
 		{{else}}
-			<a href="{{login_url}}" class="login-btn">Login to play</a>
+			<a href="{{login_url}}" class="login-btn">{{__ "login_to_play"}}</a>
 		{{/if}}
 	</div>
 
 	{{#if user_data}}
 		<div class="games-section">
-			<h2 class="game-title">WORDLE</h2>
+			<h2 class="game-title">{{__ "wordle"}}</h2>
 
 			<div class="wordle-modes">
 				<a href="/wordle?mode=normal" class="mode-card normal">
-					<div class="mode-name">NORMAL MODE</div>
-					<div class="mode-description">Classic Wordle experience</div>
+					<div class="mode-name">{{__ "normal_mode"}}</div>
+					<div class="mode-description">{{__ "normal_mode_desc"}}</div>
 				</a>
 
 				<a href="/wordle?mode=hard" class="mode-card hard">
-					<div class="mode-name">HARD MODE</div>
-					<div class="mode-description">Revealed hints must be used</div>
-					<div class="mode-description-temp">POUR PLUS TARD</div>
+					<div class="mode-name">{{__ "hard_mode"}}</div>
+					<div class="mode-description">{{__ "hard_mode_desc"}}</div>
+					<div class="mode-description-temp">{{__ "hard_mode_desc_plus"}}</div>
 				</a>
 			</div>
 		</div>
 	{{/if}}
 
 	<details class="how-to-play" id="howToPlay">
-		<summary>How to play Wordle</summary>
+		<summary>{{__ "how_to_play"}}</summary>
 		<div class="rules-content">
-			<div class="rule">• Guess the word in 6 tries</div>
-			<div class="rule">• Each guess must be a valid 5-letter word</div>
-			<div class="rule">• Green = correct letter & position</div>
-			<div class="rule">• Yellow = correct letter, wrong position</div>
-			<div class="rule">• Gray = letter not in word</div>
-			<div class="rule">• Hard mode: you must use revealed hints</div>
+			<div class="rule">• {{__ "rules.p1"}}</div>
+			<div class="rule">• {{__ "rules.p2"}}</div>
+			<div class="rule">• {{__ "rules.p3"}}</div>
+			<div class="rule">• {{__ "rules.p4"}}</div>
+			<div class="rule">• {{__ "rules.p5"}}</div>
+			<div class="rule">• {{__ "rules.p6"}}</div>
 		</div>
 	</details>
 

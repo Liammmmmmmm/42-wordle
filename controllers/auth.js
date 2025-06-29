@@ -1,4 +1,6 @@
 const axios = require('axios');
+const db = require('../db');
+const jwt = require('jsonwebtoken');
 
 exports.redirection = async (req, res) => {
 	const code = req.query?.code;
@@ -13,19 +15,7 @@ exports.redirection = async (req, res) => {
 			redirect_uri: process.env.APP_URL + "/auth/redirection"
 		});
 
-		const { access_token, refresh_token, expires_in } = tokenResponse.data;
-
-		res.cookie('access_token', access_token, {
-			httpOnly: true,
-			maxAge: expires_in * 1000,
-			sameSite: 'lax',
-			secure: false
-		});
-		res.cookie('refresh_token', refresh_token, {
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: false
-		});
+		const { access_token } = tokenResponse.data;
 
 		const userResponse = await axios.get('https://api.intra.42.fr/v2/me', {
 			headers: {
@@ -33,52 +23,42 @@ exports.redirection = async (req, res) => {
 			}
 		});
 
-		res.cookie('data', { name: userResponse.data.first_name, img: userResponse.data.image.versions.medium }, {
-			sameSite: 'lax',
-			secure: false
-		});
+		const login = userResponse.data.login;
+        const name = userResponse.data.first_name;
+        const image = userResponse.data.image.versions.medium;
 
-		return res.redirect('/');
+		db.get('SELECT id FROM users WHERE login = ?', [login], (err, row) => {
+			if (err) {
+				console.error(err);
+				return res.status(500).json({ error: true, message: "Database error" });
+			}
+			let userId = null;
+			if (row) {
+				userId = row.id;
+				createAndSendJWT(userId, res);
+			} else {
+				db.run('INSERT INTO users (login, name, image) VALUES (?, ?, ?)', [login, name, image], function(err) {
+					if (err) {
+						console.error(err);
+						return res.status(500).json({ error: true, message: "User creation failed" });
+					}
+					userId = this.lastID;
+					createAndSendJWT(userId, res);
+				});
+			}
+		});
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: true, message: "Token exchange failed" });
 	}
 }
 
-/**
- * 
- * @param {*} res 
- * @param {String} refresh_token_og
- * @returns {String} new access token
- */
-async function refreshToken(res, refresh_token_og)
-{
-	try {
-		const tokenResponse = await axios.post('https://api.intra.42.fr/oauth/token', {
-			grant_type: "refresh_token",
-			client_id: process.env.CLIENT_ID,
-			client_secret: process.env.CLIENT_SECRET,
-			refresh_token: refresh_token_og,
-			redirect_uri: process.env.APP_URL + "/auth/redirection"
-		});
-
-		const { access_token, refresh_token, expires_in } = tokenResponse.data;
-
-		res.cookie('access_token', access_token, {
-			httpOnly: true,
-			maxAge: expires_in * 1000,
-			sameSite: 'lax',
-			secure: false
-		});
-		res.cookie('refresh_token', refresh_token, {
-			httpOnly: true,
-			sameSite: 'lax',
-			secure: false
-		});
-
-		return access_token;
-	} catch (error) {
-		return null;
-	}
+function createAndSendJWT(userId, res) {
+	const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+	res.cookie('jwt', token, {
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: false
+	});
+	return res.redirect('/');
 }
-exports.refreshToken = refreshToken;

@@ -4,6 +4,7 @@ const mysql = require("mysql");
 const dotenv = require('dotenv');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
+const i18n = require('i18n');
 
 const app = express();
 
@@ -15,10 +16,21 @@ const http = require("http").createServer(app);
 const publicDirectory = path.join(__dirname, './public');
 app.use(express.static(publicDirectory));
 
+i18n.configure({
+	locales: ['en', 'fr'],
+	directory: path.join(__dirname, 'locales'),
+	defaultLocale: 'en',
+	cookie: 'lang',
+	queryParameter: 'lang'
+});
+  
+app.use(i18n.init);
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // exports.io = io;
+
 
 app.set('view engine', 'hbs');
 
