@@ -4,9 +4,294 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
-	<title>404</title>
+	<title>404 - Page non trouvée</title>
+	<style>
+		body {
+			background-color: #121213;
+			color: #ffffff;
+			font-family: 'Courier New', monospace;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			margin: 0;
+			padding: 2rem;
+			overflow: hidden;
+		}
+
+		.error-container {
+			text-align: center;
+			max-width: 600px;
+			animation: fadeInUp 0.8s ease-out;
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.error-code {
+			font-size: 8rem;
+			font-weight: bold;
+			color: #538d4e;
+			margin: 0;
+			text-shadow: 0 0 20px rgba(83, 141, 78, 0.3);
+			animation: pulse 2s infinite ease-in-out;
+		}
+
+		@keyframes pulse {
+			0%, 100% {
+				transform: scale(1);
+				text-shadow: 0 0 20px rgba(83, 141, 78, 0.3);
+			}
+			50% {
+				transform: scale(1.05);
+				text-shadow: 0 0 30px rgba(83, 141, 78, 0.5);
+			}
+		}
+
+		.error-title {
+			font-size: 2rem;
+			margin: 1rem 0;
+			color: #ffffff;
+		}
+
+		.error-message {
+			font-size: 1.2rem;
+			color: #8e9297;
+			margin: 2rem 0;
+			line-height: 1.6;
+		}
+
+		.wordle-tiles {
+			display: flex;
+			justify-content: center;
+			gap: 0.5rem;
+			margin: 2rem 0;
+		}
+
+		.tile {
+			width: 3rem;
+			height: 3rem;
+			border: 2px solid #3a3a3c;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.5rem;
+			font-weight: bold;
+			text-transform: uppercase;
+			border-radius: 4px;
+			animation: tileFlip 0.6s ease-in-out forwards;
+		}
+
+		.tile:nth-child(1) {
+			animation-delay: 0.1s;
+			background-color: #b59f3b;
+			border-color: #b59f3b;
+		}
+
+		.tile:nth-child(2) {
+			animation-delay: 0.3s;
+			background-color: #3a3a3c;
+			border-color: #3a3a3c;
+		}
+
+		.tile:nth-child(3) {
+			animation-delay: 0.5s;
+			background-color: #3a3a3c;
+			border-color: #3a3a3c;
+		}
+
+		.tile:nth-child(4) {
+			animation-delay: 0.7s;
+			background-color: #538d4e;
+			border-color: #538d4e;
+		}
+
+		.tile:nth-child(5) {
+			animation-delay: 0.9s;
+			background-color: #3a3a3c;
+			border-color: #3a3a3c;
+		}
+
+		@keyframes tileFlip {
+			0% {
+				transform: rotateX(0);
+				background-color: transparent;
+				border-color: #3a3a3c;
+			}
+			50% {
+				transform: rotateX(90deg);
+			}
+			100% {
+				transform: rotateX(0);
+			}
+		}
+
+		.home-link {
+			color: #ffffff;
+			text-decoration: none;
+			font-family: 'Courier New', monospace;
+			font-size: 1rem;
+			cursor: pointer;
+			transition: opacity 0.3s ease;
+		}
+
+		.home-link:hover {
+			opacity: 0.7;
+			text-decoration: underline;
+		}
+
+		.floating-letters {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			overflow: hidden;
+			z-index: -1;
+		}
+
+		.floating-letter {
+			position: absolute;
+			color: rgba(83, 141, 78, 0.1);
+			font-size: 2rem;
+			font-weight: bold;
+			animation: float 10s infinite linear;
+		}
+
+		@keyframes float {
+			0% {
+				transform: translateY(100vh) rotate(0deg);
+				opacity: 0;
+			}
+			10% {
+				opacity: 1;
+			}
+			90% {
+				opacity: 1;
+			}
+			100% {
+				transform: translateY(-100px) rotate(360deg);
+				opacity: 0;
+			}
+		}
+
+		.suggestion {
+			background-color: #1a1a1b;
+			border: 2px solid #3a3a3c;
+			border-radius: 8px;
+			padding: 1.5rem;
+			margin: 2rem 0;
+			color: #d7dadc;
+		}
+
+		.suggestion h3 {
+			color: #ffffff;
+			margin-bottom: 1rem;
+			font-size: 1.3rem;
+		}
+
+		.suggestion ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.suggestion li {
+			padding: 0.5rem 0;
+			border-bottom: 1px solid #3a3a3c;
+		}
+
+		.suggestion li:last-child {
+			border-bottom: none;
+		}
+
+		.suggestion a {
+			color: #538d4e;
+			text-decoration: none;
+			transition: color 0.2s;
+		}
+
+		.suggestion a:hover {
+			color: #5fa35a;
+			text-decoration: underline;
+		}
+
+		@media (max-width: 768px) {
+			.error-code {
+				font-size: 6rem;
+			}
+
+			.error-title {
+				font-size: 1.5rem;
+			}
+
+			.error-message {
+				font-size: 1rem;
+			}
+
+			.tile {
+				width: 2.5rem;
+				height: 2.5rem;
+				font-size: 1.2rem;
+			}
+		}
+	</style>
 </head>
 <body>
-	<p>Bro are you lost?</p>
+	<div class="floating-letters">
+		<span class="floating-letter" style="left: 10%; animation-delay: 0s;">W</span>
+		<span class="floating-letter" style="left: 20%; animation-delay: 2s;">O</span>
+		<span class="floating-letter" style="left: 30%; animation-delay: 4s;">R</span>
+		<span class="floating-letter" style="left: 40%; animation-delay: 6s;">D</span>
+		<span class="floating-letter" style="left: 50%; animation-delay: 8s;">L</span>
+		<span class="floating-letter" style="left: 60%; animation-delay: 1s;">E</span>
+		<span class="floating-letter" style="left: 70%; animation-delay: 3s;">4</span>
+		<span class="floating-letter" style="left: 80%; animation-delay: 5s;">2</span>
+		<span class="floating-letter" style="left: 90%; animation-delay: 7s;">!</span>
+	</div>
+	<div class="error-container">
+		<h1 class="error-code">404</h1>
+		<h2 class="error-title">Oops! Page non trouvée</h2>
+		<div class="wordle-tiles">
+			<div class="tile">E</div>
+			<div class="tile">R</div>
+			<div class="tile">R</div>
+			<div class="tile">O</div>
+			<div class="tile">R</div>
+		</div>
+		<p class="error-message">
+			Désolé, la page que vous recherchez semble avoir disparu dans les méandres du web.
+			Peut-être avez-vous fait une faute de frappe, ou peut-être que cette page n'existe tout simplement pas.
+		</p>
+		<div class="home-button">
+			<a href="/" class="home-link">← Retour à l'accueil</a>
+		</div>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const tiles = document.querySelectorAll('.tile');
+			tiles.forEach((tile, index) => {
+				setTimeout(() => {
+					tile.style.animationPlayState = 'running';
+				}, index * 200);
+			});
+		});
+		document.querySelector('.error-code').addEventListener('click', function() {
+			this.style.animation = 'pulse 0.3s ease-in-out';
+			setTimeout(() => {
+				this.style.animation = 'pulse 2s infinite ease-in-out';
+			}, 300);
+		});
+	</script>
 </body>
 </html>
