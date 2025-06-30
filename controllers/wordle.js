@@ -392,9 +392,9 @@ exports.getUserStreak = function(login, callback) {
 		let last = new Date(dates[idx]);
 		last.setHours(0,0,0,0);
 
-		if ((today - last) / (1000 * 60 * 60 * 24) !== 0) {
-			currentStreak = 0;
-		} else {
+		const diffWithToday = (today - last) / (1000 * 60 * 60 * 24);
+
+		if (diffWithToday === 0) {
 			while (idx > 0) {
 				const prev = new Date(dates[idx - 1]);
 				prev.setHours(0,0,0,0);
@@ -408,6 +408,22 @@ exports.getUserStreak = function(login, callback) {
 					break;
 				}
 			}
+		} else if (diffWithToday === 1) {
+			while (idx > 0) {
+				const prev = new Date(dates[idx - 1]);
+				prev.setHours(0,0,0,0);
+				const curr = new Date(dates[idx]);
+				curr.setHours(0,0,0,0);
+				const diff = (curr - prev) / (1000 * 60 * 60 * 24);
+				if (diff === 1) {
+					currentStreak++;
+					idx--;
+				} else {
+					break;
+				}
+			}
+		} else {
+			currentStreak = 0;
 		}
 
 		callback(null, {
