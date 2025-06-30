@@ -234,12 +234,10 @@ exports.getPersoStats = (token, callback) => {
 	});
 };
 
-// Fonction pour récupérer toutes les dates disponibles
 exports.getAvailableDates = (callbackOrReq, res = null) => {
-	// Support pour utilisation comme middleware Express ET comme fonction callback
 	const callback = res ?
 		(err, data) => {
-			if (err) return res.status(500).json({ error: true, details: err.message });
+			if (err) return res.status(502).json({ error: true, details: err.message });
 			res.status(200).json({ error: false, dates: data });
 		} :
 		callbackOrReq;
@@ -251,6 +249,12 @@ exports.getAvailableDates = (callbackOrReq, res = null) => {
 
 	db.all(distinctDaysSql, [], (err, days) => {
 		if (err) return callback(err);
+
+		days.sort((a, b) => {
+			const [ddA, mmA, yyyyA] = a.wordle.split('-').map(Number);
+			const [ddB, mmB, yyyyB] = b.wordle.split('-').map(Number);
+			return new Date(yyyyB, mmB - 1, ddB) - new Date(yyyyA, mmA - 1, ddA);
+		});
 
 		const dates = days.map(dayRow => {
 			const [dd, mm, yyyy] = dayRow.wordle.split('-');
@@ -276,7 +280,7 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 		const req = dateStringOrReq;
 		dateString = req.params.date;
 		callback = (err, data) => {
-			if (err) return callbackOrRes.status(500).json({ error: true, details: err.message });
+			if (err) return callbackOrRes.status(502).json({ error: true, details: err.message });
 			if (!data) return callbackOrRes.status(404).json({ error: true, details: "Archive not found" });
 			callbackOrRes.status(200).json({ error: false, archive: data });
 		};
