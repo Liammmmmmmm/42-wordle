@@ -30,21 +30,25 @@ function hashString(str) {
 	return Math.abs(hash);
 }
 
-function getFormatedDate() {
-	const now = new Date();
+function getFormatedDate(date = null) {
+	const now = date || new Date();
 	const yyyy = now.getFullYear();
 	const mm = String(now.getMonth() + 1).padStart(2, "0");
 	const dd = String(now.getDate()).padStart(2, "0");
 	return `${yyyy}-${mm}-${dd}`;
 }
 
-function getWordOfTheDaySync() {
-	const dateKey = getFormatedDate();
+function getWordOfTheDay(date = null) {
+	const dateKey = getFormatedDate(date || new Date());
 
 	const saltedDate = `_wordle_salt_${dateKey}_random_seed`;
 	const index = hashString(saltedDate) % words.length;
 
 	return words[index];
+}
+
+function getWordOfTheDaySync() {
+	return getWordOfTheDay();
 }
 
 exports.validateWord = async (req, res) => {
@@ -71,23 +75,18 @@ exports.validateWord = async (req, res) => {
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
+	console.log(word, dayWord);
 	for (let i = 0; i < 5; i++) {
-		if (word[i] == dayWord[i]) validation[i] = "correct";
-		else if (dayWord.includes(word[i])) validation[i] = "present";
+		if (validation[i] === "absent" && letterCount[word[i]] > 0) {
+			validation[i] = "present";
+			letterCount[word[i]]--;
+		}
 	}
 
-	if (word == dayWord || players_data.id.attempts >= 6) {
-		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data.id.start_time) / 1000, players_data.id.attempts, word);
-				
-		if (saveResultsResponse.error) {
-			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
-		} else {
-			return (res.status(200).json({ error: false, validation: validation }));
-		}
-	} else {
-		return (res.status(200).json({ error: false, validation: validation }));
-	}
+	return (res.status(200).json({ error: false, validation: validation }));
 }
+
+
 
 exports.startTyping = async (req, res) => {
 	const token = req.cookies?.jwt;
@@ -197,3 +196,113 @@ exports.getPersoStats = (token, callback) => {
 		);
 	});
 };
+
+// Fonction pour récupérer toutes les dates disponibles
+exports.getAvailableDates = (callbackOrReq, res = null) => {
+	// Support pour utilisation comme middleware Express ET comme fonction callback
+	const callback = res ?
+		(err, data) => {
+			if (err) return res.status(500).json({ error: true, details: err.message });
+			res.status(200).json({ error: false, dates: data });
+		} :
+		callbackOrReq;
+
+	const distinctDaysSql = `
+		SELECT DISTINCT wordle FROM wordle_participations 
+		ORDER BY wordle DESC
+	`;
+
+	db.all(distinctDaysSql, [], (err, days) => {
+		if (err) return callback(err);
+
+		const dates = days.map(dayRow => {
+			const [dd, mm, yyyy] = dayRow.wordle.split('-');
+			return {
+				date: dayRow.wordle,
+				formattedDate: `${dd}/${mm}/${yyyy}`,
+				displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`
+			};
+		});
+
+		callback(null, dates);
+	});
+};
+
+exports.getArchiveByDate = (dateStringOrReq, callbackOrRes = null, res = null) => {
+	let dateString, callback;
+
+	if (typeof dateStringOrReq === 'string') {
+		dateString = dateStringOrReq;
+		callback = callbackOrRes;
+	} else {
+		// Utilisation comme middleware Express -> j'ai aucune foutues idee de ce que c'est
+		const req = dateStringOrReq;
+		dateString = req.params.date;
+		callback = (err, data) => {
+			if (err) return callbackOrRes.status(500).json({ error: true, details: err.message });
+			if (!data) return callbackOrRes.status(404).json({ error: true, details: "Archive not found" });
+			callbackOrRes.status(200).json({ error: false, archive: data });
+		};
+	}
+
+	if (!dateString) {
+		return callback(new Error("Date is required"));
+	}
+
+	const [dd, mm, yyyy] = dateString.split('-');
+	const date = new Date(yyyy, mm - 1, dd);
+	const wordOfTheDay = getWordOfTheDay(date);
+
+	const fastestSql = `
+		SELECT login, time, attempts FROM wordle_participations
+		WHERE wordle = ?
+		ORDER BY time ASC, attempts ASC
+		LIMIT 10
+	`;
+	const fewestAttemptsSql = `
+		SELECT login, time, attempts FROM wordle_participations
+		WHERE wordle = ?
+		ORDER BY attempts ASC, time ASC
+		LIMIT 10
+	`;
+	const allPlayersSql = `
+		SELECT login, time, attempts FROM wordle_participations
+		WHERE wordle = ?
+		ORDER BY time ASC
+	`;
+
+	db.all(fastestSql, [dateString], (err, fastest) => {
+		if (err) return callback(err);
+
+		db.all(fewestAttemptsSql, [dateString], (err, fewest_attempts) => {
+			if (err) return callback(err);
+
+			db.all(allPlayersSql, [dateString], (err, allPlayers) => {
+				if (err) return callback(err);
+				
+				const archive = {
+					date: dateString,
+					formattedDate: `${dd}/${mm}/${yyyy}`,
+					displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`,
+					wordOfTheDay: wordOfTheDay.toUpperCase(),
+					stats: {
+						fastest,
+						fewest_attempts,
+						allPlayers
+					},
+					totalPlayers: allPlayers.length
+				};
+
+				callback(null, archive);
+			});
+		});
+	});
+};
+
+function getMonthName(monthNum) {
+	const months = [
+		'', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+		'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+	];
+	return months[monthNum];
+}
