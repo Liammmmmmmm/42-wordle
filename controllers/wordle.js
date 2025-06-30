@@ -46,17 +46,25 @@ function getFormatedDateReverse(date = null) {
 	return `${yyyy}-${mm}-${dd}`;
 }
 
-function getWordOfTheDay(date = null) {
-	const dateKey = getFormatedDateReverse(date || new Date());
+async function getWordOfTheDay(date = null) {
+	const dateKey = getFormatedDate(date || new Date());
 
-	const saltedDate = `_wordle_salt_${dateKey}_random_seed`;
-	const index = hashString(saltedDate) % words.length;
-
-	return words[index];
-}
-
-function getWordOfTheDaySync() {
-	return getWordOfTheDay();
+	return new Promise((resolve, reject) => {
+		db.get(`SELECT word FROM word WHERE date = ?`, [dateKey], (err, row) => {
+			if (err) return reject(err);
+			if (row && row.word) {
+				return resolve(row.word);
+			} else {
+				const saltedDate = `${process.env.SEED}wordle_salt_${dateKey}_random_seed`;
+				const index = hashString(saltedDate) % words.length;
+				const word = words[index];
+				db.run(`INSERT INTO word (word, date) VALUES (?, ?)`, [word, dateKey], (err) => {
+					if (err) return reject(err);
+					return resolve(word);
+				});
+			}
+		});
+	});
 }
 
 exports.validateWord = async (req, res) => {
@@ -79,7 +87,7 @@ exports.validateWord = async (req, res) => {
 
 	players_data.id.attempts++;
 
-	const dayWord = getWordOfTheDaySync();
+	const dayWord = await getWordOfTheDay();
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
@@ -133,8 +141,8 @@ exports.startTyping = async (req, res) => {
 }
 
 async function saveResults(userId, time, attempts, word) {
-	return new Promise((resolve, reject) => {
-		if (getWordOfTheDaySync() != word) attempts = 7;
+	return new Promise(async (resolve, reject) => {
+		if (await getWordOfTheDay() != word) attempts = 7;
 
 		if (attempts < 1) attempts = 9999;
 		if (time < 1) time = 999999; // 800ms d'animations, impossible de deviner en moins de 200ms donc triche
@@ -257,7 +265,7 @@ exports.getAvailableDates = (callbackOrReq, res = null) => {
 	});
 };
 
-exports.getArchiveByDate = (dateStringOrReq, callbackOrRes = null, res = null) => {
+exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = null) => {
 	let dateString, callback;
 
 	if (typeof dateStringOrReq === 'string') {
@@ -280,7 +288,10 @@ exports.getArchiveByDate = (dateStringOrReq, callbackOrRes = null, res = null) =
 
 	const [dd, mm, yyyy] = dateString.split('-');
 	const date = new Date(yyyy, mm - 1, dd);
-	const wordOfTheDay = getWordOfTheDay(date);
+
+	if (date > new Date()) return callback(new Error("Cannot fetch archive for a future date"));
+
+	const wordOfTheDay = await getWordOfTheDay(date);
 
 	const fastestSql = `
 		SELECT login, time, attempts FROM wordle_participations

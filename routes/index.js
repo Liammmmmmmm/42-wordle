@@ -132,7 +132,6 @@ router.get('/archives', (req, res) => {
 		// Récupérer l'archive pour la date sélectionnée
 		getArchiveByDate(dateToLoad, (err, archive) => {
 			if (err) {
-				console.error('Error fetching archive:', err);
 				return res.render('archives', {
 					availableDates,
 					selectedArchive: null,

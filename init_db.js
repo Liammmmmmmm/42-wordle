@@ -20,6 +20,13 @@ db.serialize(() => {
     creation TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`);
   console.log('Table "users" créée.');
+
+  db.run(`CREATE TABLE IF NOT EXISTS word (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    word TEXT NOT NULL CHECK(length(word) = 5),
+    date TEXT NOT NULL CHECK(length(date) = 10)
+  )`);
+  console.log('Table "word" créée.');
 });
 
 db.close();
