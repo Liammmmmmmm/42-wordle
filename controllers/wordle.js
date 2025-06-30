@@ -38,8 +38,16 @@ function getFormatedDate(date = null) {
 	return `${dd}-${mm}-${yyyy}`;
 }
 
+function getFormatedDateReverse(date = null) {
+	const now = date || new Date();
+	const yyyy = now.getFullYear();
+	const mm = String(now.getMonth() + 1).padStart(2, "0");
+	const dd = String(now.getDate()).padStart(2, "0");
+	return `${yyyy}-${mm}-${dd}`;
+}
+
 function getWordOfTheDay(date = null) {
-	const dateKey = getFormatedDate(date || new Date());
+	const dateKey = getFormatedDateReverse(date || new Date());
 
 	const saltedDate = `_wordle_salt_${dateKey}_random_seed`;
 	const index = hashString(saltedDate) % words.length;
