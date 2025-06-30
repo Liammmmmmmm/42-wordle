@@ -1,6 +1,7 @@
 const fs = require("fs");
 const db = require('../db');
 const jwt = require('jsonwebtoken');
+const log = require('../log');
 
 const words = [];
 
@@ -81,9 +82,13 @@ exports.validateWord = async (req, res) => {
 	} catch (err) {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
+
 	if (players_data.id) if (players_data.id.date != getFormatedDate()) players_data.id = null;
 
-	if (!players_data.id || players_data.id.attempts === undefined) return res.status(401).json({ error: true, details: "Bro you didn't even started the game" });
+	if (!players_data.id || players_data.id.attempts === undefined) {
+		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
+		return res.status(401).json({ error: true, details: "Bro you didn't even started the game" });
+	}
 
 	players_data.id.attempts++;
 
@@ -111,9 +116,12 @@ exports.validateWord = async (req, res) => {
 		}
 	}
 
+
+	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players_data.id.attempts} time ${Math.floor((Date.now() - players_data.id.start_time) / 1000)}s`);
+
 	if (word == dayWord || players_data.id.attempts >= 6) {
 		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data.id.start_time) / 1000, players_data.id.attempts, word);
-				
+
 		if (saveResultsResponse.error) {
 			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
 		} else {
@@ -135,8 +143,9 @@ exports.startTyping = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	if (players_data.id) if (players_data.id.date != getFormatedDate()) players_data.id = null;
+	if (players_data.id && players_data.id.date === getFormatedDate())  return ;
 
+	log(`START_TYPING: ${userId} started typing`);
 	players_data.id = { start_time: Date.now(), attempts: 0, date: getFormatedDate() };
 }
 
@@ -148,6 +157,8 @@ async function saveResults(userId, time, attempts, word) {
 		if (time < 1) time = 999999; // 800ms d'animations, impossible de deviner en moins de 200ms donc triche
 
 		const wordle = getFormatedDate();
+
+		log(`SAVE_RESULTS: ${userId} word "${word}" time ${time}s attempts ${attempts} date ${wordle}`);
 
 		db.get(`SELECT login FROM users WHERE id = ?`, [userId], function (err, row) {
 			if (err || !row) {
