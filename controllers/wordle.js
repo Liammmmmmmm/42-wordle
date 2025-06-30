@@ -75,7 +75,19 @@ exports.validateWord = async (req, res) => {
 
 	const validation = ["absent", "absent", "absent", "absent", "absent"];
 
-	console.log(word, dayWord);
+
+	const letterCount = {};
+	for (let letter of dayWord) {
+		letterCount[letter] = (letterCount[letter] || 0) + 1;
+	}
+
+	for (let i = 0; i < 5; i++) {
+		if (word[i] === dayWord[i]) {
+			validation[i] = "correct";
+			letterCount[word[i]]--;
+		}
+	}
+
 	for (let i = 0; i < 5; i++) {
 		if (validation[i] === "absent" && letterCount[word[i]] > 0) {
 			validation[i] = "present";
@@ -83,10 +95,18 @@ exports.validateWord = async (req, res) => {
 		}
 	}
 
-	return (res.status(200).json({ error: false, validation: validation }));
+	if (word == dayWord || players_data.id.attempts >= 6) {
+		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data.id.start_time) / 1000, players_data.id.attempts, word);
+				
+		if (saveResultsResponse.error) {
+			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
+		} else {
+			return (res.status(200).json({ error: false, validation: validation }));
+		}
+	} else {
+		return (res.status(200).json({ error: false, validation: validation }));
+	}
 }
-
-
 
 exports.startTyping = async (req, res) => {
 	const token = req.cookies?.jwt;
