@@ -329,8 +329,6 @@ function saveGameState() {
 		state_keyboard.keyboard[btn.textContent.toUpperCase()] = Array.from(btn.classList);
 	});
 
-	console.log(state)
-
 	setCookie('wordle_state', JSON.stringify(state), 2);
 	setCookie('keyboard_state', JSON.stringify(state_keyboard), 2);
 }
@@ -400,7 +398,14 @@ addEventListener("keydown", (event) => {
 
 function keyaction(key) {
 	if (pause_event) return ;
-	if (!start_time) start_time = Date.now();
+	if (!start_time) {
+		start_time = Date.now();
+		try {
+			axios.post('/api/wordle/starttyping');
+		} catch (error) {
+			console.error(error);
+		}
+	}
 	if (isalpha(key) && position.y <= 6 && position.x <= 5)
 	{
 		setLetter(position, key);
@@ -470,14 +475,6 @@ function keyaction(key) {
 				}
 				else if (position.y === 7)
 				{
-					axios.post('/api/wordle/saveresults', {
-						word: word,
-						time: (Date.now() - start_time) / 1000,
-						attempts: position.y
-					})
-					.catch(function (error) {
-						console.log(error);
-					})
 					document.getElementById("attemptCount").innerText = position.y - 1;
 					document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
 					setTimeout(openPopUpLoose, 800);
@@ -485,7 +482,7 @@ function keyaction(key) {
 			}, 800);
 		})
 		.catch(function (error) {
-			console.log(error);
+			console.error(error);
 			shakeCurrentRow();
 		})
 	}
@@ -493,14 +490,6 @@ function keyaction(key) {
 
 function saveResults(word)
 {
-	axios.post('/api/wordle/saveresults', {
-		word: word,
-		time: (Date.now() - start_time) / 1000,
-		attempts: position.y - 1
-	})
-	.catch(function (error) {
-		console.log(error);
-	})
 	document.getElementById("attemptCount").innerText = position.y - 1;
 	document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
 	setTimeout(openPopUpWin, 800);
