@@ -93,3 +93,7 @@ switch (process.env.APP_STATUS) {
 	default:
 		console.error(`APP_STATUS: ${process.env.APP_STATUS}`)
 }
+
+hbs.registerHelper('inc', function(value) {
+  return parseInt(value) + 1;
+});

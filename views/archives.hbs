@@ -74,7 +74,7 @@
 								{{#if selectedArchive.stats.fastest.length}}
 									{{#each selectedArchive.stats.fastest}}
 										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
-											<span class="rank">{{@index}}</span>
+											<span class="rank">{{inc @index 1}}</span>
 											<span class="player-name">{{login}}</span>
 											{{#if (eq attempts 7)}}
 												<span class="score failed">❌ Échec</span>
@@ -95,7 +95,7 @@
 								{{#if selectedArchive.stats.fewest_attempts.length}}
 									{{#each selectedArchive.stats.fewest_attempts}}
 										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
-											<span class="rank">{{@index}}</span>
+											<span class="rank">{{inc @index 1}}</span>
 											<span class="player-name">{{login}}</span>
 											{{#if (eq attempts 7)}}
 												<span class="score failed">❌ Échec</span>
@@ -189,6 +189,10 @@
 				}
 			}
 		});
+		Handlebars.registerHelper('add', function(a, b) {
+			return a + b;
+		});
+
 	</script>
 </body>
 </html>
