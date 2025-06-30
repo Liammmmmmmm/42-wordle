@@ -24,6 +24,9 @@ h1 {
 .user-section {
 	margin-bottom: 1rem;
 	text-align: center;
+	display: flex;
+	flex-direction: column;
+    align-items: center;
 }
 
 .user-section img {
@@ -36,6 +39,7 @@ h1 {
 }
 
 .login-btn {
+	margin-bottom: 1rem;
 	background-color: #538d4e;
 	color: white;
 	text-decoration: none;

@@ -54,7 +54,7 @@ exports.redirection = async (req, res) => {
 }
 
 function createAndSendJWT(userId, res) {
-	const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+	const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '2w' });
 	res.cookie('jwt', token, {
 		httpOnly: true,
 		sameSite: 'lax',
