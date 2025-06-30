@@ -2,6 +2,7 @@ const express = require('express');
 const { getWordleStats, getPersoStats, getAvailableDates, getArchiveByDate } = require('../controllers/wordle');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const wordleController = require('../controllers/wordle');
 
 const router = express.Router();
 
@@ -72,12 +73,26 @@ router.get('/wordle', (req, res) => {
 			try {
 				const decoded = jwt.verify(token, process.env.JWT_SECRET);
 				db.get('SELECT login FROM users WHERE id = ?', [decoded.id], (err, user) => {
-					res.render('wordle', {
-						leaderboards: stats,
-						stats: err2 ? null : persoStats,
-						userLogin: user ? user.login : null,
-						mode: gameMode,
-						__: res.__
+					if (!user) {
+						return res.render('wordle', {
+							leaderboards: stats,
+							stats: err2 ? null : persoStats,
+							userLogin: null,
+							mode: gameMode,
+							__: res.__
+						});
+					}
+					const login = user.login;
+					const wordleController = require('../controllers/wordle');
+					wordleController.getUserStreak(login, (errStreak, streak) => {
+						res.render('wordle', {
+							leaderboards: stats,
+							stats: err2 ? null : persoStats,
+							userLogin: login,
+							mode: gameMode,
+							streak: streak || { currentStreak: 0, bestStreak: 0 },
+							__: res.__
+						});
 					});
 				});
 			} catch (e) {
@@ -93,13 +108,11 @@ router.get('/wordle', (req, res) => {
 	});
 });
 
-// Route pour les archives avec navigation par date
 router.get('/archives', (req, res) => {
 	if (!is_logged_in(req)) return res.redirect("/");
 
 	const selectedDate = req.query.date;
 
-	// Récupérer toutes les dates disponibles pour la sidebar
 	getAvailableDates((err, availableDates) => {
 		if (err) {
 			console.error('Error fetching available dates:', err);
@@ -108,37 +121,41 @@ router.get('/archives', (req, res) => {
 				selectedArchive: null,
 				error: 'Erreur lors du chargement des archives',
 				locale: req.getLocale(),
-				__: res.__
+				__: res.__,
+				topStreaks: []
 			});
 		}
 
-		// Si aucune date n'est sélectionnée, prendre la plus récente
 		let dateToLoad = selectedDate;
 		if (!dateToLoad && availableDates.length > 0) {
 			dateToLoad = availableDates[0].date;
 		}
 
-		// Si aucune archive n'existe
 		if (!dateToLoad) {
-			return res.render('archives', {
-				availableDates: [],
-				selectedArchive: null,
-				selectedDate: null,
-				locale: req.getLocale(),
-				__: res.__
+			return wordleController.getTopStreaks((errTop, topStreaks) => {
+				res.render('archives', {
+					availableDates: [],
+					selectedArchive: null,
+					selectedDate: null,
+					locale: req.getLocale(),
+					__: res.__,
+					topStreaks: topStreaks || []
+				});
 			});
 		}
 
-		// Récupérer l'archive pour la date sélectionnée
 		getArchiveByDate(dateToLoad, (err, archive) => {
 			if (err) {
-				return res.render('archives', {
-					availableDates,
-					selectedArchive: null,
-					selectedDate: dateToLoad,
-					error: 'Erreur lors du chargement de l\'archive',
-					locale: req.getLocale(),
-					__: res.__
+				return wordleController.getTopStreaks((errTop, topStreaks) => {
+					res.render('archives', {
+						availableDates,
+						selectedArchive: null,
+						selectedDate: dateToLoad,
+						error: 'Erreur lors du chargement de l\'archive',
+						locale: req.getLocale(),
+						__: res.__,
+						topStreaks: topStreaks || []
+					});
 				});
 			}
 
@@ -160,20 +177,32 @@ router.get('/archives', (req, res) => {
 				const wordle = `${dd}-${mm}-${yyyy}`;
 
 				db.get('SELECT wp.* FROM wordle_participations wp JOIN users u ON wp.login = u.login WHERE wp.wordle = ? AND u.id = ?', [wordle, userId], (err, row) => {
-					
 					if (err || !row) {
 						archive.wordOfTheDay = "HIDDEN WORD"
 					}
-					res.render('archives', {
-						availableDates,
-						selectedArchive: archive,
-						selectedDate: dateToLoad,
-						locale: req.getLocale(),
-						__: res.__
+					wordleController.getTopStreaks((errTop, topStreaks) => {
+						res.render('archives', {
+							availableDates,
+							selectedArchive: archive,
+							selectedDate: dateToLoad,
+							locale: req.getLocale(),
+							__: res.__,
+							topStreaks: topStreaks || []
+						});
 					});
 				});
 				return;
 			}
+			wordleController.getTopStreaks((errTop, topStreaks) => {
+				res.render('archives', {
+					availableDates,
+					selectedArchive: archive,
+					selectedDate: dateToLoad,
+					locale: req.getLocale(),
+					__: res.__,
+					topStreaks: topStreaks || []
+				});
+			});
 		});
 	});
 });

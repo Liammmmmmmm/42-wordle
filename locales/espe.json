@@ -20,6 +20,8 @@
 	"404text1": "Pardonu, la paĝo, kiun vi serĉas, ŝajnas esti perdiĝinta en la profundoj de la reto.",
 	"404text2": "Eble vi mistajpis, aŭ eble tiu paĝo simple ne ekzistas.",
 	"backhome": "Reen al ĉefpaĝo",
+	"streak.current": "Aktuala streak",
+	"streak.best": "Plej bona streak",
 	"last_players": "Lastaj ludintoj",
 	"fastest_players": "Plej rapidaj ludintoj",
 	"fewest_attempts": "Malmultaj provoj",

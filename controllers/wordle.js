@@ -346,3 +346,128 @@ function getMonthName(monthNum) {
 	];
 	return months[monthNum];
 }
+
+/**
+ * Récupère les participations d'un joueur et calcule le streak actuel et le meilleur streak.
+ * @param {string} login - Le login de l'utilisateur
+ * @param {function} callback - callback(err, { currentStreak, bestStreak, lastParticipationDate })
+ */
+exports.getUserStreak = function(login, callback) {
+	const sql = `
+		SELECT wordle FROM wordle_participations
+		WHERE login = ?
+		ORDER BY wordle ASC
+	`;
+	db.all(sql, [login], (err, rows) => {
+		if (err) return callback(err);
+
+		if (!rows || rows.length === 0) {
+			return callback(null, { currentStreak: 0, bestStreak: 0, lastParticipationDate: null });
+		}
+
+		const dates = rows.map(r => {
+			const [dd, mm, yyyy] = r.wordle.split('-');
+			return new Date(`${yyyy}-${mm}-${dd}`);
+		}).sort((a, b) => a - b);
+
+		let bestStreak = 1;
+		let streak = 1;
+
+		for (let i = 1; i < dates.length; i++) {
+			const prev = dates[i - 1];
+			const curr = dates[i];
+			const diff = (curr - prev) / (1000 * 60 * 60 * 24);
+			if (diff === 1) {
+				streak++;
+			} else if (diff > 1) {
+				streak = 1;
+			}
+			if (streak > bestStreak) bestStreak = streak;
+		}
+
+		let currentStreak = 1;
+		const today = new Date();
+		today.setHours(0,0,0,0);
+		let idx = dates.length - 1;
+		let last = new Date(dates[idx]);
+		last.setHours(0,0,0,0);
+
+		if ((today - last) / (1000 * 60 * 60 * 24) !== 0) {
+			currentStreak = 0;
+		} else {
+			while (idx > 0) {
+				const prev = new Date(dates[idx - 1]);
+				prev.setHours(0,0,0,0);
+				const curr = new Date(dates[idx]);
+				curr.setHours(0,0,0,0);
+				const diff = (curr - prev) / (1000 * 60 * 60 * 24);
+				if (diff === 1) {
+					currentStreak++;
+					idx--;
+				} else {
+					break;
+				}
+			}
+		}
+
+		callback(null, {
+			currentStreak,
+			bestStreak,
+			lastParticipationDate: last
+		});
+	});
+};
+
+/**
+ * Récupère le top 5 des joueurs avec la meilleure streak historique.
+ * Retourne un tableau d'objets : [{login, bestStreak}]
+ * @param {function} callback - callback(err, topStreaks)
+ */
+exports.getTopStreaks = function(callback) {
+	const sql = `
+		SELECT login, wordle FROM wordle_participations
+		ORDER BY login ASC, wordle ASC
+	`;
+	db.all(sql, [], (err, rows) => {
+		if (err) return callback(err);
+
+		const streaks = {};
+		for (const row of rows) {
+			const login = row.login;
+			const [dd, mm, yyyy] = row.wordle.split('-');
+			const date = new Date(`${yyyy}-${mm}-${dd}`);
+
+			if (!streaks[login]) {
+				streaks[login] = {
+					dates: [],
+					bestStreak: 1
+				};
+			}
+			streaks[login].dates.push(date);
+		}
+
+		const results = [];
+		for (const login in streaks) {
+			const dates = streaks[login].dates.sort((a, b) => a - b);
+			let bestStreak = 1;
+			let streak = 1;
+			for (let i = 1; i < dates.length; i++) {
+				const prev = dates[i - 1];
+				const curr = dates[i];
+				const diff = (curr - prev) / (1000 * 60 * 60 * 24);
+				if (diff === 1) {
+					streak++;
+				} else if (diff > 1) {
+					streak = 1;
+				}
+				if (streak > bestStreak) bestStreak = streak;
+			}
+			results.push({ login, bestStreak });
+		}
+
+		results.sort((a, b) => b.bestStreak - a.bestStreak || a.login.localeCompare(b.login));
+		callback(null, results.slice(0, 5));
+	});
+};
+
+

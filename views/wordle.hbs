@@ -16,13 +16,20 @@
 </head>
 <body>
 	<div class="game-header">
-		<h1>42 Wordle</h1>
+		<h1>{{__ "title"}}</h1>
 		{{#eqs mode "hard"}}
 			<div class="hard-mode-indicator">
 				<span class="hard-mode-badge">{{__ "hard_mode"}}</span>
 				<div class="hard-mode-description">{{__ "hard_mode_desc"}}</div>
 			</div>
 		{{/eqs}}
+		{{#if streak}}
+			<div class="streak-info">
+				🔥 {{__ "streak.current" }}: <b>{{streak.currentStreak}}</b>
+				&nbsp;|&nbsp;
+				🏆 {{__ "streak.best" }}: <b>{{streak.bestStreak}}</b>
+			</div>
+		{{/if}}
 	</div>
 
 	<div class="grid">

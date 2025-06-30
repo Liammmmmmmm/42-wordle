@@ -20,6 +20,8 @@
 	"404text1": "很抱歉，您要找的頁面似乎已經消失在網路深處。",
 	"404text2": "可能是您輸入錯誤，或該頁面根本不存在。",
 	"backhome": "返回首頁",
+	"streak.current": "當前連勝",
+	"streak.best": "最佳連勝",
 	"last_players": "最近玩家",
 	"fastest_players": "最快完成的玩家",
 	"fewest_attempts": "最少嘗試次數",

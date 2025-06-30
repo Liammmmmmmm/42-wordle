@@ -39,6 +39,23 @@
 					<a href="/wordle" class="play-now-btn">Jouer maintenant</a>
 				</div>
 			{{/if}}
+
+			<div class="sidebar-footer">
+				<h3>🔥 Top Streaks</h3>
+				<div class="leaderboard-content">
+					{{#if topStreaks.length}}
+						{{#each topStreaks}}
+							<div class="player-row-streaks">
+								<span class="rank">{{inc @index 1}}</span>
+								<span class="player-name">{{login}}</span>
+								<span class="score">🔥 {{bestStreak}} jour{{#if (gt bestStreak 1)}}s{{/if}}</span>
+							</div>
+						{{/each}}
+					{{else}}
+						<div class="no-data">Aucune donnée</div>
+					{{/if}}
+				</div>
+			</div>
 		</div>
 
 		<!-- Main content -->

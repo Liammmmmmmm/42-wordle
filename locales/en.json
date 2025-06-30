@@ -19,6 +19,8 @@
 	"404text1": "Sorry, the page you are looking for seems to have disappeared into the depths of the web.",
 	"404text2": "Maybe you made a typo, or maybe this page simply doesn't exist.",
 	"backhome": "Back to home",
+	"streak.current": "Current streak",
+	"streak.best": "Best streak",
 	"last_players": "Last players",
 	"fastest_players": "Fastest players",
 	"fewest_attempts": "Fewest attempts",

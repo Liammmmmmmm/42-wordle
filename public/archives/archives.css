@@ -38,6 +38,12 @@ body {
 	background-color: #222;
 }
 
+.sidebar-footer {
+	padding: 1.5rem;
+	border-top: 2px solid #3a3a3c;
+	background-color: #222;
+}
+
 .sidebar-header h2 {
 	color: #538d4e;
 	margin-bottom: 1rem;
@@ -294,6 +300,19 @@ body {
 
 .player-row.failed:hover {
 	border-color: #ff8a8a;
+}
+
+.sidebar-footer h3 {
+	margin-bottom: 1rem;
+}
+
+.player-row-streaks {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	border-radius: 8px;
+	border: 2px solid transparent;
+	transition: all 0.3s ease;
 }
 
 .rank {
