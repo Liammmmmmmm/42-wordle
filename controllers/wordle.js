@@ -35,7 +35,7 @@ function getFormatedDate(date = null) {
 	const yyyy = now.getFullYear();
 	const mm = String(now.getMonth() + 1).padStart(2, "0");
 	const dd = String(now.getDate()).padStart(2, "0");
-	return `${yyyy}-${mm}-${dd}`;
+	return `${dd}-${mm}-${yyyy}`;
 }
 
 function getWordOfTheDay(date = null) {
@@ -167,6 +167,7 @@ exports.getWordleStats = (callback) => {
 	`;
 	const latestSql = `
 		SELECT login, time, attempts, wordle FROM wordle_participations
+		WHERE wordle = ?
 		ORDER BY id DESC
 		LIMIT 10
 	`;
@@ -177,7 +178,7 @@ exports.getWordleStats = (callback) => {
 		db.all(fewestAttemptsSql, [wordle], (err, fewest_attempts) => {
 			if (err) return callback(err);
 
-			db.all(latestSql, [], (err, latest) => {
+			db.all(latestSql, [wordle], (err, latest) => {
 				if (err) return callback(err);
 
 				return callback(null, {
