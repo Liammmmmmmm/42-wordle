@@ -308,48 +308,54 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 
 	const wordOfTheDay = await getWordOfTheDay(date);
 
-	const fastestSql = `
+	const allParticipationsSql = `
 		SELECT login, time, attempts FROM wordle_participations
 		WHERE wordle = ?
-		ORDER BY time ASC, attempts ASC
-		LIMIT 10
-	`;
-	const fewestAttemptsSql = `
-		SELECT login, time, attempts FROM wordle_participations
-		WHERE wordle = ?
-		ORDER BY attempts ASC, time ASC
-		LIMIT 10
-	`;
-	const allPlayersSql = `
-		SELECT login, time, attempts FROM wordle_participations
-		WHERE wordle = ?
-		ORDER BY time ASC
 	`;
 
-	db.all(fastestSql, [dateString], (err, fastest) => {
+	db.all(allParticipationsSql, [dateString], (err, allResults) => {
 		if (err) return callback(err);
+
+		const successes = allResults.filter(r => r.attempts !== 7);
+		const failures = allResults.filter(r => r.attempts === 7);
+
+		successes.sort((a, b) => a.time - b.time);
+
+		failures.sort((a, b) => b.time - a.time);
+
+		// Select the top 10 fastest successes based on time
+		const topSuccesses = successes.slice(0, 10);
+		
+		// Combine the top successes with all failures
+		const combinedResults = [...topSuccesses, ...failures];
+		
+		// Limit the combined results to the top 10 entries
+		const fastest = combinedResults.slice(0, 10);
+
+		const fewestAttemptsSql = `
+			SELECT login, time, attempts FROM wordle_participations
+			WHERE wordle = ?
+			ORDER BY attempts ASC, time ASC
+			LIMIT 10
+		`;
 
 		db.all(fewestAttemptsSql, [dateString], (err, fewest_attempts) => {
 			if (err) return callback(err);
 
-			db.all(allPlayersSql, [dateString], (err, allPlayers) => {
-				if (err) return callback(err);
-				
-				const archive = {
-					date: dateString,
-					formattedDate: `${dd}/${mm}/${yyyy}`,
-					displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`,
-					wordOfTheDay: wordOfTheDay.toUpperCase(),
-					stats: {
-						fastest,
-						fewest_attempts,
-						allPlayers
-					},
-					totalPlayers: allPlayers.length
-				};
+			const archive = {
+				date: dateString,
+				formattedDate: `${dd}/${mm}/${yyyy}`,
+				displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`,
+				wordOfTheDay: wordOfTheDay.toUpperCase(),
+				stats: {
+					fastest,
+					fewest_attempts,
+					allPlayers: allResults
+				},
+				totalPlayers: allResults.length
+			};
 
-				callback(null, archive);
-			});
+			callback(null, archive);
 		});
 	});
 };
@@ -500,5 +506,3 @@ exports.getTopStreaks = function(callback) {
 		callback(null, results.slice(0, 5));
 	});
 };
-
-

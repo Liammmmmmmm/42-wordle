@@ -94,7 +94,7 @@
 											<span class="rank">{{inc @index 1}}</span>
 											<span class="player-name">{{login}}</span>
 											{{#if (eq attempts 7)}}
-												<span class="score failed">❌ Échec</span>
+												<span class="score failed">❌ Échec ({{time}}s)</span>
 											{{else}}
 												<span class="score">⏱️ {{time}}s</span>
 											{{/if}}
