@@ -9,7 +9,7 @@
 </head>
 <body>
 	<div class="archives-layout">
-		<!-- Sidebar -->
+		<!-- === SIDEBAR === -->
 		<div class="sidebar">
 			<div class="sidebar-header">
 				<h2>📚 Archives</h2>
@@ -19,6 +19,7 @@
 				</div>
 			</div>
 
+			<!-- Liste des dates disponibles -->
 			{{#if availableDates.length}}
 				<div class="dates-list">
 					<h3>Dates disponibles</h3>
@@ -40,6 +41,7 @@
 				</div>
 			{{/if}}
 
+			<!-- Top Streaks dans le footer -->
 			<div class="sidebar-footer">
 				<h3>🔥 Top Streaks</h3>
 				<div class="leaderboard-content">
@@ -58,14 +60,17 @@
 			</div>
 		</div>
 
-		<!-- Main content -->
+		<!-- === CONTENU PRINCIPAL === -->
 		<div class="main-content">
 			{{#if error}}
+				<!-- Gestion des erreurs -->
 				<div class="error-message">
 					<h2>❌ Erreur</h2>
 					<p>{{error}}</p>
 				</div>
+
 			{{else if selectedArchive}}
+				<!-- En-tête de l'archive sélectionnée -->
 				<div class="archive-header">
 					<div class="archive-title">
 						<h1>📅 {{selectedArchive.displayDate}}</h1>
@@ -73,7 +78,39 @@
 							<span class="word-label">Mot du jour :</span>
 							<span class="word-of-day">{{selectedArchive.wordOfTheDay}}</span>
 						</div>
+
+						<!-- Statistiques détaillées -->
+						{{#if selectedArchive.stats.successCount}}
+							<div class="detailed-stats">
+								<div class="stat-row">
+									<div class="stat-item success">
+										<span class="stat-icon">✅</span>
+										<span class="stat-number">{{selectedArchive.stats.successCount}}</span>
+										<span class="stat-desc">Réussites</span>
+									</div>
+									<div class="stat-item failure">
+										<span class="stat-icon">❌</span>
+										<span class="stat-number">{{selectedArchive.stats.failureCount}}</span>
+										<span class="stat-desc">Échecs</span>
+									</div>
+									{{#if (gt selectedArchive.stats.successCount 0)}}
+										<div class="stat-item average">
+											<span class="stat-icon">⏱️</span>
+											<span class="stat-number">{{selectedArchive.stats.averageTime}}s</span>
+											<span class="stat-desc">Temps moyen</span>
+										</div>
+										<div class="stat-item average">
+											<span class="stat-icon">🎯</span>
+											<span class="stat-number">{{selectedArchive.stats.averageAttempts}}</span>
+											<span class="stat-desc">Essais moyens</span>
+										</div>
+									{{/if}}
+								</div>
+							</div>
+						{{/if}}
 					</div>
+
+					<!-- Carte du nombre total de joueurs -->
 					<div class="archive-stats">
 						<div class="stat-card">
 							<span class="stat-value">{{selectedArchive.totalPlayers}}</span>
@@ -83,61 +120,68 @@
 				</div>
 
 				<div class="content-grid">
-					<!-- Leaderboards -->
+					<!-- === LEADERBOARDS AVEC SCROLL === -->
 					<div class="leaderboards-section">
+						<!-- Classement par temps -->
 						<div class="leaderboard fastest">
-							<h3>⚡ Les plus rapides</h3>
-							<div class="leaderboard-content">
-								{{#if selectedArchive.stats.fastest.length}}
-									{{#each selectedArchive.stats.fastest}}
-										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
-											<span class="rank">{{inc @index 1}}</span>
-											<span class="player-name">{{login}}</span>
-											{{#if (eq attempts 7)}}
-												<span class="score failed">❌ Échec ({{time}}s)</span>
-											{{else}}
-												<span class="score">⏱️ {{time}}s</span>
-											{{/if}}
-										</div>
-									{{/each}}
-								{{else}}
-									<div class="no-data">Aucune donnée</div>
-								{{/if}}
+							<h3>⚡ Classement par temps ({{selectedArchive.stats.fastest.length}})</h3>
+							<div class="leaderboard-scroll-container">
+								<div class="leaderboard-content">
+									{{#if selectedArchive.stats.fastest.length}}
+										{{#each selectedArchive.stats.fastest}}
+											<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}" data-rank="{{inc @index 1}}">
+												<span class="rank">{{inc @index 1}}</span>
+												<span class="player-name">{{login}}</span>
+												{{#if (eq attempts 7)}}
+													<span class="score failed">❌ Échec ({{time}}s)</span>
+												{{else}}
+													<span class="score">⏱️ {{time}}s ({{attempts}} essai{{#if (gt attempts 1)}}s{{/if}})</span>
+												{{/if}}
+											</div>
+										{{/each}}
+									{{else}}
+										<div class="no-data">Aucune donnée</div>
+									{{/if}}
+								</div>
 							</div>
 						</div>
 
+						<!-- Classement par nombre d'essais -->
 						<div class="leaderboard fewest">
-							<h3>🎯 Moins d'essais</h3>
-							<div class="leaderboard-content">
-								{{#if selectedArchive.stats.fewest_attempts.length}}
-									{{#each selectedArchive.stats.fewest_attempts}}
-										<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}">
-											<span class="rank">{{inc @index 1}}</span>
-											<span class="player-name">{{login}}</span>
-											{{#if (eq attempts 7)}}
-												<span class="score failed">❌ Échec</span>
-											{{else}}
-												<span class="score">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}}</span>
-											{{/if}}
-										</div>
-									{{/each}}
-								{{else}}
-									<div class="no-data">Aucune donnée</div>
-								{{/if}}
+							<h3>🎯 Classement par essais ({{selectedArchive.stats.fewest_attempts.length}})</h3>
+							<div class="leaderboard-scroll-container">
+								<div class="leaderboard-content">
+									{{#if selectedArchive.stats.fewest_attempts.length}}
+										{{#each selectedArchive.stats.fewest_attempts}}
+											<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}" data-rank="{{inc @index 1}}">
+												<span class="rank">{{inc @index 1}}</span>
+												<span class="player-name">{{login}}</span>
+												{{#if (eq attempts 7)}}
+													<span class="score failed">❌ Échec ({{time}}s)</span>
+												{{else}}
+													<span class="score">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}} ({{time}}s)</span>
+												{{/if}}
+											</div>
+										{{/each}}
+									{{else}}
+										<div class="no-data">Aucune donnée</div>
+									{{/if}}
+								</div>
 							</div>
 						</div>
 					</div>
 
-					<!-- All Players Grid -->
+					<!-- === GRILLE DE TOUS LES PARTICIPANTS === -->
 					<div class="all-players-section">
-						<h3>👥 Tous les participants ({{selectedArchive.totalPlayers}})</h3>
+						<h3>👥 Tous les participants par ordre chronologique ({{selectedArchive.totalPlayers}})</h3>
 						<div class="players-grid">
 							{{#each selectedArchive.stats.allPlayers}}
 								<div class="player-card {{#if (eq attempts 7)}}failed{{/if}}">
 									<div class="player-info">
 										<div class="player-name">{{login}}</div>
 										{{#if (eq attempts 7)}}
-											<div class="player-result failed">❌ Échec</div>
+											<div class="player-result failed">❌ Échec après 6 essais</div>
+											<div class="player-time">⏱️ {{time}}s</div>
 										{{else}}
 											<div class="player-stats">
 												<span class="attempts">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}}</span>
@@ -150,11 +194,13 @@
 						</div>
 					</div>
 				</div>
+
 			{{else}}
+				<!-- État par défaut : aucune archive sélectionnée -->
 				<div class="no-archive-selected">
 					<div class="placeholder-content">
 						<h2>📋 Sélectionnez une date</h2>
-						<p>Choisissez une date dans la sidebar pour voir les archives</p>
+						<p>Choisissez une date dans la sidebar pour voir les archives des parties précédentes</p>
 						{{#if availableDates.length}}
 							<button onclick="selectFirstDate()" class="select-date-btn">
 								Voir la plus récente
@@ -166,17 +212,20 @@
 		</div>
 	</div>
 
-	<!-- Mobile toggle button -->
+	<!-- === BOUTON MOBILE === -->
 	<button class="mobile-toggle" onclick="toggleSidebar()">
 		<span class="toggle-icon">☰</span>
 	</button>
 
+	<!-- === SCRIPTS === -->
 	<script>
+		// Gestion de l'ouverture/fermeture de la sidebar mobile
 		function toggleSidebar() {
 			const sidebar = document.querySelector('.sidebar');
 			sidebar.classList.toggle('open');
 		}
 
+		// Sélection automatique de la première date
 		function selectFirstDate() {
 			const firstDateLink = document.querySelector('.date-item');
 			if (firstDateLink) {
@@ -184,7 +233,7 @@
 			}
 		}
 
-		// Auto-close sidebar on mobile after selection
+		// Fermeture automatique de la sidebar sur mobile après sélection
 		document.querySelectorAll('.date-item').forEach(item => {
 			item.addEventListener('click', () => {
 				if (window.innerWidth <= 768) {
@@ -195,7 +244,7 @@
 			});
 		});
 
-		// Close sidebar when clicking outside on mobile
+		// Fermeture de la sidebar en cliquant à l'extérieur sur mobile
 		document.addEventListener('click', (e) => {
 			if (window.innerWidth <= 768) {
 				const sidebar = document.querySelector('.sidebar');
@@ -206,10 +255,15 @@
 				}
 			}
 		});
-		Handlebars.registerHelper('add', function(a, b) {
-			return a + b;
-		});
 
+		// Animation progressive des éléments de leaderboard
+		document.addEventListener('DOMContentLoaded', () => {
+			// Réinitialiser les animations si la page est rechargée
+			const playerRows = document.querySelectorAll('.player-row');
+			playerRows.forEach((row, index) => {
+				row.style.animationDelay = `${0.1 + (index * 0.05)}s`;
+			});
+		});
 	</script>
 </body>
 </html>

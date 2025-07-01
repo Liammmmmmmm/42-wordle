@@ -287,7 +287,6 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 		dateString = dateStringOrReq;
 		callback = callbackOrRes;
 	} else {
-		// Utilisation comme middleware Express -> j'ai aucune foutues idee de ce que c'est
 		const req = dateStringOrReq;
 		dateString = req.params.date;
 		callback = (err, data) => {
@@ -306,41 +305,60 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 
 	if (date > new Date()) return callback(new Error("Cannot fetch archive for a future date"));
 
-	const wordOfTheDay = await getWordOfTheDay(date);
+	try {
+		const wordOfTheDay = await getWordOfTheDay(date);
 
-	const allParticipationsSql = `
-		SELECT login, time, attempts FROM wordle_participations
-		WHERE wordle = ?
-	`;
-
-	db.all(allParticipationsSql, [dateString], (err, allResults) => {
-		if (err) return callback(err);
-
-		const successes = allResults.filter(r => r.attempts !== 7);
-		const failures = allResults.filter(r => r.attempts === 7);
-
-		successes.sort((a, b) => a.time - b.time);
-
-		failures.sort((a, b) => b.time - a.time);
-
-		// Select the top 10 fastest successes based on time
-		const topSuccesses = successes.slice(0, 10);
-		
-		// Combine the top successes with all failures
-		const combinedResults = [...topSuccesses, ...failures];
-		
-		// Limit the combined results to the top 10 entries
-		const fastest = combinedResults.slice(0, 10);
-
-		const fewestAttemptsSql = `
+		const allParticipationsSql = `
 			SELECT login, time, attempts FROM wordle_participations
 			WHERE wordle = ?
-			ORDER BY attempts ASC, time ASC
-			LIMIT 10
+			ORDER BY id ASC
 		`;
 
-		db.all(fewestAttemptsSql, [dateString], (err, fewest_attempts) => {
+		db.all(allParticipationsSql, [dateString], (err, allResults) => {
 			if (err) return callback(err);
+
+			if (!allResults || allResults.length === 0) {
+				return callback(null, {
+					date: dateString,
+					formattedDate: `${dd}/${mm}/${yyyy}`,
+					displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`,
+					wordOfTheDay: wordOfTheDay.toUpperCase(),
+					stats: {
+						fastest: [],
+						fewest_attempts: [],
+						allPlayers: [],
+						successCount: 0,
+						failureCount: 0,
+						averageTime: 0,
+						averageAttempts: 0
+					},
+					totalPlayers: 0
+				});
+			}
+
+			const successes = allResults.filter(r => r.attempts !== 7);
+			const failures = allResults.filter(r => r.attempts === 7);
+
+			const fastestResults = [
+				...successes.sort((a, b) => a.time - b.time),
+				...failures.sort((a, b) => a.time - b.time)
+			];
+
+			const fewestAttemptsResults = [...allResults].sort((a, b) => {
+				if (a.attempts !== b.attempts) {
+					return a.attempts - b.attempts;
+				}
+				return a.time - b.time;
+			});
+
+			const successCount = successes.length;
+			const failureCount = failures.length;
+			const averageTime = successes.length > 0
+				? (successes.reduce((sum, r) => sum + parseFloat(r.time), 0) / successes.length).toFixed(1)
+				: "0";
+			const averageAttempts = successes.length > 0
+				? (successes.reduce((sum, r) => sum + parseInt(r.attempts), 0) / successes.length).toFixed(1)
+				: "0";
 
 			const archive = {
 				date: dateString,
@@ -348,16 +366,33 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 				displayDate: `${dd} ${getMonthName(parseInt(mm))} ${yyyy}`,
 				wordOfTheDay: wordOfTheDay.toUpperCase(),
 				stats: {
-					fastest,
-					fewest_attempts,
-					allPlayers: allResults
+					fastest: fastestResults.map((result, index) => ({
+						...result,
+						rank: index + 1,
+						time: parseFloat(result.time).toFixed(1)
+					})),
+					fewest_attempts: fewestAttemptsResults.map((result, index) => ({
+						...result,
+						rank: index + 1,
+						time: parseFloat(result.time).toFixed(1)
+					})),
+					allPlayers: allResults.map(result => ({
+						...result,
+						time: parseFloat(result.time).toFixed(1)
+					})),
+					successCount,
+					failureCount,
+					averageTime,
+					averageAttempts
 				},
 				totalPlayers: allResults.length
 			};
 
 			callback(null, archive);
 		});
-	});
+	} catch (error) {
+		callback(error);
+	}
 };
 
 function getMonthName(monthNum) {
@@ -365,7 +400,7 @@ function getMonthName(monthNum) {
 		'', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
 		'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
 	];
-	return months[monthNum];
+	return months[monthNum] || 'Mois inconnu';
 }
 
 /**
