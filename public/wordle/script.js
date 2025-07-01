@@ -138,6 +138,24 @@ window.addEventListener("load", (event) => {
 	}
 });
 
+
+/* If CSS modification isn't enough to fix the double-tap issue on mobile, this would prevent double-tapping on keys.
+	Stills enable zooming on page! */
+
+// document.querySelectorAll('.key').forEach(button => {
+// 	let lastTap = 0;
+
+// 	button.addEventListener('touchend', (e) => {
+// 		const currentTime = new Date().getTime();
+// 		const tapLength = currentTime - lastTap;
+
+// 		if (tapLength < 500 && tapLength > 0) {
+// 			e.preventDefault();
+// 		}
+// 		lastTap = currentTime;
+// 	});
+// });
+
 function showHardModeError(message) {
 	const errorDiv = document.createElement('div');
 	errorDiv.className = 'hard-mode-error';
@@ -235,18 +253,18 @@ function setKeyboardTileColor(key, keyState) {
 }
 
 function shakeCurrentRow() {
-    for (let x = 1; x <= 5; x++) {
-        const tile = document.querySelector(`#wordle-${position.y}-${x}`);
-        tile.classList.remove('tile-delete');
-        void tile.offsetWidth;
-        tile.classList.add('tile-delete');
-        setTimeout(() => {
-            tile.classList.remove('tile-delete');
-        }, 150);
-    }
-    setTimeout(() => {
-        pause_event = false;
-    }, 150);
+	for (let x = 1; x <= 5; x++) {
+		const tile = document.querySelector(`#wordle-${position.y}-${x}`);
+		tile.classList.remove('tile-delete');
+		void tile.offsetWidth;
+		tile.classList.add('tile-delete');
+		setTimeout(() => {
+			tile.classList.remove('tile-delete');
+		}, 150);
+	}
+	setTimeout(() => {
+		pause_event = false;
+	}, 150);
 }
 
 function setLetter(pos, letter) {
@@ -507,134 +525,134 @@ function openPopUpLoose() {
 }
 
 function generateShareText() {
-    const date = new Date();
-    const dateStr = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+	const date = new Date();
+	const dateStr = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
 
-    let shareText = `42 Wordle ${dateStr} ${position.y - 1}/6`;
-    if (gameMode === 'hard') {
-        shareText += ' (Hard Mode)';
-    }
-    shareText += '\n\n';
+	let shareText = `42 Wordle ${dateStr} ${position.y - 1}/6`;
+	if (gameMode === 'hard') {
+		shareText += ' (Hard Mode)';
+	}
+	shareText += '\n\n';
 
-    for (let row = 1; row < position.y; row++) {
-        let rowText = '';
-        for (let col = 1; col <= 5; col++) {
-            const tile = document.querySelector(`#wordle-${row}-${col}`);
+	for (let row = 1; row < position.y; row++) {
+		let rowText = '';
+		for (let col = 1; col <= 5; col++) {
+			const tile = document.querySelector(`#wordle-${row}-${col}`);
 
-            if (tile.classList.contains('correct')) {
-                rowText += '🟩';
-            } else if (tile.classList.contains('present')) {
-                rowText += '🟨';
-            } else if (tile.classList.contains('absent')) {
-                rowText += '⬛';
-            } else {
-                rowText += '⬜';
-            }
-        }
-        shareText += rowText + '\n';
-    }
+			if (tile.classList.contains('correct')) {
+				rowText += '🟩';
+			} else if (tile.classList.contains('present')) {
+				rowText += '🟨';
+			} else if (tile.classList.contains('absent')) {
+				rowText += '⬛';
+			} else {
+				rowText += '⬜';
+			}
+		}
+		shareText += rowText + '\n';
+	}
 
-    const timeInSeconds = ((Date.now() - start_time) / 1000).toFixed(1);
-    shareText += `\n⏱️ ${timeInSeconds}s`;
-    shareText += `\n🎮 ${window.location.origin}`;
+	const timeInSeconds = ((Date.now() - start_time) / 1000).toFixed(1);
+	shareText += `\n⏱️ ${timeInSeconds}s`;
+	shareText += `\n🎮 ${window.location.origin}`;
 
-    return (shareText.trim());
+	return (shareText.trim());
 }
 
 async function copyToClipboard(text) {
-    try {
-        await navigator.clipboard.writeText(text);
-        return true;
-    } catch (err) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-    }
+	try {
+		await navigator.clipboard.writeText(text);
+		return true;
+	} catch (err) {
+		const textArea = document.createElement('textarea');
+		textArea.value = text;
+		textArea.style.position = 'fixed';
+		textArea.style.left = '-999999px';
+		textArea.style.top = '-999999px';
+		document.body.appendChild(textArea);
+		textArea.focus();
+		textArea.select();
+	}
 }
 
 function displayShareResult() {
-    const shareResultDiv = document.getElementById('shareResult');
-    shareResultDiv.innerHTML = '';
+	const shareResultDiv = document.getElementById('shareResult');
+	shareResultDiv.innerHTML = '';
 
-    for (let row = 1; row < position.y; row++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.style.marginBottom = '2px';
+	for (let row = 1; row < position.y; row++) {
+		const rowDiv = document.createElement('div');
+		rowDiv.style.marginBottom = '2px';
 
-        for (let col = 1; col <= 5; col++) {
-            const tile = document.querySelector(`#wordle-${row}-${col}`);
-            let emoji = '⬜';
+		for (let col = 1; col <= 5; col++) {
+			const tile = document.querySelector(`#wordle-${row}-${col}`);
+			let emoji = '⬜';
 
-            if (tile.classList.contains('correct')) {
-                emoji = '🟩';
-            } else if (tile.classList.contains('present')) {
-                emoji = '🟨';
-            } else if (tile.classList.contains('absent')) {
-                emoji = '⬛';
-            }
+			if (tile.classList.contains('correct')) {
+				emoji = '🟩';
+			} else if (tile.classList.contains('present')) {
+				emoji = '🟨';
+			} else if (tile.classList.contains('absent')) {
+				emoji = '⬛';
+			}
 
-            const span = document.createElement('span');
-            span.textContent = emoji;
-            span.style.fontSize = '1.5rem';
-            span.style.marginRight = '2px';
-            rowDiv.appendChild(span);
-        }
+			const span = document.createElement('span');
+			span.textContent = emoji;
+			span.style.fontSize = '1.5rem';
+			span.style.marginRight = '2px';
+			rowDiv.appendChild(span);
+		}
 
-        shareResultDiv.appendChild(rowDiv);
-    }
+		shareResultDiv.appendChild(rowDiv);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const shareButton = document.getElementById('shareButton');
-    const copyNotification = document.getElementById('copyNotification');
-    const modal = document.getElementById('gameOverModal');
-    const closeBtn = document.querySelector('.close');
+	const shareButton = document.getElementById('shareButton');
+	const copyNotification = document.getElementById('copyNotification');
+	const modal = document.getElementById('gameOverModal');
+	const closeBtn = document.querySelector('.close');
 
-    shareButton.addEventListener('click', async function() {
-        const shareText = generateShareText();
-        const success = await copyToClipboard(shareText);
+	shareButton.addEventListener('click', async function() {
+		const shareText = generateShareText();
+		const success = await copyToClipboard(shareText);
 
-        if (success) {
-            copyNotification.classList.add('show');
+		if (success) {
+			copyNotification.classList.add('show');
 
-            setTimeout(() => {
-                copyNotification.classList.remove('show');
-            }, 2000);
+			setTimeout(() => {
+				copyNotification.classList.remove('show');
+			}, 2000);
 
-            const originalHTML = shareButton.innerHTML;
-            shareButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
-            shareButton.style.backgroundColor = '#5fa35a';
+			const originalHTML = shareButton.innerHTML;
+			shareButton.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
+			shareButton.style.backgroundColor = '#5fa35a';
 
-            setTimeout(() => {
-                shareButton.innerHTML = originalHTML;
-                shareButton.style.backgroundColor = '';
-            }, 2000);
-        }
-    });
+			setTimeout(() => {
+				shareButton.innerHTML = originalHTML;
+				shareButton.style.backgroundColor = '';
+			}, 2000);
+		}
+	});
 
-    closeBtn.addEventListener('click', function() {
-        modal.classList.add('hide-modal');
-    });
+	closeBtn.addEventListener('click', function() {
+		modal.classList.add('hide-modal');
+	});
 
-    window.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            modal.classList.add('hide-modal');
-        }
-    });
+	window.addEventListener('click', function(event) {
+		if (event.target === modal) {
+			modal.classList.add('hide-modal');
+		}
+	});
 });
 
 const originalOpenPopUpWin = openPopUpWin;
 openPopUpWin = function() {
-    originalOpenPopUpWin();
-    displayShareResult();
+	originalOpenPopUpWin();
+	displayShareResult();
 };
 
 const originalOpenPopUpLoose = openPopUpLoose;
 openPopUpLoose = function() {
-    originalOpenPopUpLoose();
-    displayShareResult();
+	originalOpenPopUpLoose();
+	displayShareResult();
 };
