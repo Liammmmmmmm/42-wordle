@@ -83,14 +83,14 @@ exports.validateWord = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	if (players_data.id) if (players_data.id.date != getFormatedDate()) players_data.id = null;
+	if (players_data[userId] && players_data[userId].date != getFormatedDate()) players_data[userId] = null;
 
-	if (!players_data.id || players_data.id.attempts === undefined) {
+	if (!players_data[userId] || players_data[userId].attempts === undefined) {
 		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
 		return res.status(401).json({ error: true, details: "Bro you didn't even started the game" });
 	}
 
-	players_data.id.attempts++;
+	players_data[userId].attempts++;
 
 	const dayWord = await getWordOfTheDay();
 
@@ -117,10 +117,10 @@ exports.validateWord = async (req, res) => {
 	}
 
 
-	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players_data.id.attempts} time ${Math.floor((Date.now() - players_data.id.start_time) / 1000)}s`);
+	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players_data[userId].attempts} time ${Math.floor((Date.now() - players_data[userId].start_time) / 1000)}s`);
 
-	if (word == dayWord || players_data.id.attempts >= 6) {
-		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data.id.start_time) / 1000, players_data.id.attempts, word);
+	if (word == dayWord || players_data[userId].attempts >= 6) {
+		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data[userId].start_time) / 1000, players_data[userId].attempts, word);
 
 		if (saveResultsResponse.error) {
 			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
@@ -143,10 +143,10 @@ exports.startTyping = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	if (players_data.id && players_data.id.date === getFormatedDate())  return ;
+	if (players_data[userId] && players_data[userId].date === getFormatedDate())  return ;
 
 	log(`START_TYPING: ${userId} started typing`);
-	players_data.id = { start_time: Date.now(), attempts: 0, date: getFormatedDate() };
+	players_data[userId] = { start_time: Date.now(), attempts: 0, date: getFormatedDate() };
 }
 
 async function saveResults(userId, time, attempts, word) {
