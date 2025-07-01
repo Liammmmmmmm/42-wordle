@@ -35,6 +35,7 @@ exports.redirection = async (req, res) => {
 			let userId = null;
 			if (row) {
 				userId = row.id;
+				log(`AUTH: ${userId} (${login}, ${name}) logged in`);
 				createAndSendJWT(userId, res);
 			} else {
 				db.run('INSERT INTO users (login, name, image) VALUES (?, ?, ?)', [login, name, image], function(err) {
@@ -43,6 +44,7 @@ exports.redirection = async (req, res) => {
 						return res.status(401).redirect("/");
 					}
 					userId = this.lastID;
+					log(`AUTH: ${userId} (${login}, ${name}) registered`);
 					createAndSendJWT(userId, res);
 				});
 			}

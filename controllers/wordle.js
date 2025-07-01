@@ -87,7 +87,7 @@ exports.validateWord = async (req, res) => {
 
 	if (!players_data[userId] || players_data[userId].attempts === undefined) {
 		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
-		return res.status(401).json({ error: true, details: "Bro you didn't even started the game" });
+		players_data[userId] = { start_time: Date.now() - 10 * 1000, attempts: 0, date: getFormatedDate() };
 	}
 
 	players_data[userId].attempts++;
