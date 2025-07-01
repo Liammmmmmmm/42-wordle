@@ -323,7 +323,14 @@ exports.getArchiveByDate = async (dateStringOrReq, callbackOrRes = null, res = n
 
 		failures.sort((a, b) => b.time - a.time);
 
-		const fastest = [...successes.slice(0, 10), ...failures].slice(0, 10);
+		// Select the top 10 fastest successes based on time
+		const topSuccesses = successes.slice(0, 10);
+		
+		// Combine the top successes with all failures
+		const combinedResults = [...topSuccesses, ...failures];
+		
+		// Limit the combined results to the top 10 entries
+		const fastest = combinedResults.slice(0, 10);
 
 		const fewestAttemptsSql = `
 			SELECT login, time, attempts FROM wordle_participations
