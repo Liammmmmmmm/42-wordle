@@ -1,6 +1,7 @@
 const axios = require('axios');
 const db = require('../db');
 const jwt = require('jsonwebtoken');
+const log = require('../log');
 
 exports.redirection = async (req, res) => {
 	const code = req.query?.code;
