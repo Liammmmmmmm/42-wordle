@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const log = require('../log');
 
 const words = [];
+const small_words = [];
 
 const players_data = {};
 
@@ -17,6 +18,21 @@ fs.readFile('./words.txt', 'utf8', (err, data) => {
 		if (element.length == 5) words.push(element);
 	});
 	if (words.length == 0) {
+		console.error("Invalid word list");
+		process.exit();
+	}
+});
+
+fs.readFile('./small_words.txt', 'utf8', (err, data) => {
+	if (err) {
+		console.error(err);
+		return;
+	}
+	let splitted = data.split("\n");
+	splitted.forEach((element) => {
+		if (element.length == 5) small_words.push(element);
+	});
+	if (small_words.length == 0) {
 		console.error("Invalid word list");
 		process.exit();
 	}
@@ -57,8 +73,8 @@ async function getWordOfTheDay(date = null) {
 				return resolve(row.word);
 			} else {
 				const saltedDate = `${process.env.SEED}wordle_salt_${dateKey}_random_seed`;
-				const index = hashString(saltedDate) % words.length;
-				const word = words[index];
+				const index = hashString(saltedDate) % small_words.length;
+				const word = small_words[index];
 				db.run(`INSERT INTO word (word, date) VALUES (?, ?)`, [word, dateKey], (err) => {
 					if (err) return reject(err);
 					return resolve(word);
