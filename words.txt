@@ -1297,7 +1297,6 @@ bonks
 bonne
 bonny
 bonus
-bonus
 bonza
 bonze
 booai
@@ -1901,7 +1900,6 @@ chaya
 chays
 cheap
 cheat
-cheat
 check
 cheek
 cheep
@@ -2379,7 +2377,6 @@ craps
 crapy
 crare
 crash
-crash
 crass
 crate
 crave
@@ -2428,7 +2425,6 @@ crits
 croak
 croci
 crock
-crocs
 crocs
 croft
 crogs
@@ -4939,6 +4935,7 @@ heald
 heals
 heame
 heaps
+heapy
 heard
 heare
 hears
@@ -8571,7 +8568,6 @@ prims
 primy
 prink
 print
-print
 prion
 prior
 prise
@@ -9873,7 +9869,6 @@ shape
 shaps
 shard
 share
-share
 shark
 sharn
 sharp
@@ -10655,7 +10650,6 @@ squid
 squit
 squiz
 stabs
-stack
 stack
 stade
 staff
@@ -12654,7 +12648,6 @@ wrier
 wries
 wring
 wrist
-write
 write
 writs
 wroke
