@@ -358,6 +358,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
+	margin-top: 10px;
 }
 
 /* === SCROLLBARS PERSONNALISÉES === */
@@ -553,7 +554,6 @@ body {
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 	gap: 1rem;
 	max-height: 500px;
-	overflow-y: auto;
 	padding-right: 0.5rem;
 }
 
