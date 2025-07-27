@@ -177,7 +177,7 @@ router.get('/archives', (req, res) => {
 				const wordle = `${dd}-${mm}-${yyyy}`;
 
 				db.get('SELECT wp.* FROM wordle_participations wp JOIN users u ON wp.login = u.login WHERE wp.wordle = ? AND u.id = ?', [wordle, userId], (err, row) => {
-					if (err || !row) {
+					if ((err || !row) && selectedDate === wordle) {
 						archive.wordOfTheDay = "HIDDEN WORD"
 					}
 					wordleController.getTopStreaks((errTop, topStreaks) => {

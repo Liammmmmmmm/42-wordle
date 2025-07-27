@@ -486,7 +486,7 @@ function keyaction(key) {
 				}, 550);
 				if (validation[0] == "correct" && validation[1] == "correct" && validation[2] == "correct" && validation[3] == "correct" && validation[4] == "correct") {
 
-					saveResults(word);
+					saveResults(word, response.data.time);
 
 					pause_event = true;
 					return  ;
@@ -494,7 +494,7 @@ function keyaction(key) {
 				else if (position.y === 7)
 				{
 					document.getElementById("attemptCount").innerText = position.y - 1;
-					document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
+					document.getElementById("timeCount").innerText = response.data.time;
 					setTimeout(openPopUpLoose, 800);
 				}
 			}, 800);
@@ -506,10 +506,10 @@ function keyaction(key) {
 	}
 }
 
-function saveResults(word)
+function saveResults(word, time)
 {
 	document.getElementById("attemptCount").innerText = position.y - 1;
-	document.getElementById("timeCount").innerText = (Date.now() - start_time) / 1000;
+	document.getElementById("timeCount").innerText = time;
 	setTimeout(openPopUpWin, 800);
 }
 
@@ -552,7 +552,7 @@ function generateShareText() {
 		shareText += rowText + '\n';
 	}
 
-	const timeInSeconds = ((Date.now() - start_time) / 1000).toFixed(1);
+	const timeInSeconds = document.getElementById("timeCount").textContent;
 	shareText += `\n⏱️ ${timeInSeconds}s`;
 	shareText += `\n🎮 ${window.location.origin}`;
 

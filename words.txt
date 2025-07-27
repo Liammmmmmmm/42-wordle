@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 aahed
 aalii
 aargh
@@ -574,6 +581,7 @@ arvee
 arvos
 aryls
 asana
+ascii
 ascon
 ascot
 ascus
@@ -1237,6 +1245,7 @@ bobas
 bobby
 bobol
 bobos
+bocal
 bocca
 bocce
 bocci
@@ -1294,6 +1303,7 @@ bonie
 bonks
 bonne
 bonny
+bonus
 bonus
 bonza
 bonze
@@ -1898,6 +1908,7 @@ chaya
 chays
 cheap
 cheat
+cheat
 check
 cheek
 cheep
@@ -1956,6 +1967,7 @@ chive
 chivs
 chivy
 chizz
+chmod
 chock
 choco
 chocs
@@ -2374,6 +2386,7 @@ craps
 crapy
 crare
 crash
+crash
 crass
 crate
 crave
@@ -2422,6 +2435,7 @@ crits
 croak
 croci
 crock
+crocs
 crocs
 croft
 crogs
@@ -4932,7 +4946,6 @@ heald
 heals
 heame
 heaps
-heapy
 heard
 heare
 hears
@@ -6265,6 +6278,7 @@ liars
 liart
 libel
 liber
+libft
 libra
 libri
 lichi
@@ -7550,6 +7564,7 @@ noria
 noris
 norks
 norma
+norme
 norms
 north
 nosed
@@ -8562,6 +8577,7 @@ primp
 prims
 primy
 prink
+print
 print
 prion
 prior
@@ -9864,6 +9880,7 @@ shape
 shaps
 shard
 share
+share
 shark
 sharn
 sharp
@@ -10646,6 +10663,7 @@ squit
 squiz
 stabs
 stack
+stack
 stade
 staff
 stage
@@ -10679,6 +10697,7 @@ staun
 stave
 staws
 stays
+stdin
 stead
 steak
 steal
@@ -12642,6 +12661,7 @@ wrier
 wries
 wring
 wrist
+write
 write
 writs
 wroke

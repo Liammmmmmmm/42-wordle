@@ -99,14 +99,27 @@ exports.validateWord = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	if (players_data[userId] && players_data[userId].date != getFormatedDate()) players_data[userId] = null;
+	// Vérifier et initialiser les données du joueur de manière atomique
+	const currentDate = getFormatedDate();
+	
+	// Si le joueur a des données d'un jour différent, les reset
+	if (players_data[userId] && players_data[userId].date !== currentDate) {
+		players_data[userId] = null;
+	}
 
 	if (!players_data[userId] || players_data[userId].attempts === undefined) {
 		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
-		players_data[userId] = { start_time: Date.now() - 10 * 1000, attempts: 0, date: getFormatedDate() };
+		players_data[userId] = { 
+			start_time: Date.now() - 10 * 1000, 
+			attempts: 0, 
+			date: currentDate 
+		};
 	}
 
 	players_data[userId].attempts++;
+
+	console.log(`VALIDATE_WORD: ${userId}`);
+	console.log(players_data);
 
 	const dayWord = await getWordOfTheDay();
 
@@ -136,15 +149,16 @@ exports.validateWord = async (req, res) => {
 	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players_data[userId].attempts} time ${Math.floor((Date.now() - players_data[userId].start_time) / 1000)}s`);
 
 	if (word == dayWord || players_data[userId].attempts >= 6) {
-		const saveResultsResponse = await saveResults(userId, (Date.now() - players_data[userId].start_time) / 1000, players_data[userId].attempts, word);
+		const timeToComplete = (Date.now() - players_data[userId].start_time) / 1000;
+		const saveResultsResponse = await saveResults(userId, timeToComplete, players_data[userId].attempts, word);
 
 		if (saveResultsResponse.error) {
 			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
 		} else {
-			return (res.status(200).json({ error: false, validation: validation }));
+			return (res.status(200).json({ error: false, validation: validation, time: timeToComplete }));
 		}
 	} else {
-		return (res.status(200).json({ error: false, validation: validation }));
+		return (res.status(200).json({ error: false, validation: validation, time: null }));
 	}
 }
 
@@ -159,10 +173,26 @@ exports.startTyping = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	if (players_data[userId] && players_data[userId].date === getFormatedDate())  return ;
+	console.log(`START_TYPING: ${userId} started typing`);
+	console.log(players_data);
+
+	const currentDate = getFormatedDate();
+	
+	if (players_data[userId] && players_data[userId].date === currentDate) {
+		return res.status(200).json({ error: false, message: "Game already started" });
+	}
 
 	log(`START_TYPING: ${userId} started typing`);
-	players_data[userId] = { start_time: Date.now(), attempts: 0, date: getFormatedDate() };
+	players_data[userId] = { 
+		start_time: Date.now(), 
+		attempts: 0, 
+		date: currentDate 
+	};
+
+	console.log(`Game started for user ${userId} on date ${currentDate}`);
+	console.log(players_data);
+	
+	return res.status(200).json({ error: false, message: "Game started" });
 }
 
 async function saveResults(userId, time, attempts, word) {

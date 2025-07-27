@@ -3,7 +3,9 @@ node_modules
 package-lock.json
 test.js
 dev.db
+edit.db
 .DS_Store
 user.json
 app.log
 
+piscine-words.txt
