@@ -25,9 +25,10 @@
 					<h3>Dates disponibles</h3>
 					<div class="dates-container">
 						{{#each availableDates}}
-							<a href="/archives?date={{date}}"
+							<a href="#"
 							   class="date-item {{#if (eq date ../selectedDate)}}active{{/if}}"
-							   data-date="{{date}}">
+							   data-date="{{date}}"
+							   onclick="loadArchiveDate('{{date}}'); return false;">
 								<div class="date-display">{{displayDate}}</div>
 								<div class="date-short">{{formattedDate}}</div>
 							</a>
@@ -225,11 +226,250 @@
 			sidebar.classList.toggle('open');
 		}
 
+		// Load archive data via AJAX
+		function loadArchiveDate(date) {
+			// Update active state in sidebar
+			document.querySelectorAll('.date-item').forEach(item => {
+				item.classList.remove('active');
+			});
+			document.querySelector(`[data-date="${date}"]`).classList.add('active');
+
+			// Show loading state
+			const mainContent = document.querySelector('.main-content');
+			mainContent.innerHTML = `
+				<div style="display: flex; align-items: center; justify-content: center; min-height: 60vh;">
+					<div style="text-align: center; color: #8e9297;">
+						<div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+						<p>Chargement des archives...</p>
+					</div>
+				</div>
+			`;
+
+			// Fetch new archive data
+			fetch(`/api/archives/${date}`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.error) {
+						mainContent.innerHTML = `
+							<div class="error-message">
+								<h2>❌ Erreur</h2>
+								<p>${data.error}</p>
+							</div>
+						`;
+						return;
+					}
+
+					// Update main content with new archive data
+					updateMainContent(data.selectedArchive, data.selectedDate);
+				})
+				.catch(error => {
+					console.error('Error loading archive:', error);
+					mainContent.innerHTML = `
+						<div class="error-message">
+							<h2>❌ Erreur</h2>
+							<p>Erreur lors du chargement de l'archive</p>
+						</div>
+					`;
+				});
+
+			// Close sidebar on mobile
+			if (window.innerWidth <= 768) {
+				setTimeout(() => {
+					document.querySelector('.sidebar').classList.remove('open');
+				}, 100);
+			}
+		}
+
+		// Update main content with archive data
+		function updateMainContent(archive, selectedDate) {
+			const mainContent = document.querySelector('.main-content');
+			
+			if (!archive) {
+				mainContent.innerHTML = `
+					<div class="no-archive-selected">
+						<div class="placeholder-content">
+							<h2>📋 Archive non trouvée</h2>
+							<p>L'archive pour cette date n'est pas disponible</p>
+						</div>
+					</div>
+				`;
+				return;
+			}
+
+			// Generate HTML for the archive content
+			let html = `
+				<div class="archive-header">
+					<div class="archive-title">
+						<h1>📅 ${archive.displayDate}</h1>
+						<div class="word-reveal">
+							<span class="word-label">Mot du jour :</span>
+							<span class="word-of-day">${archive.wordOfTheDay}</span>
+						</div>
+			`;
+
+			// Add detailed stats if available
+			if (archive.stats && archive.stats.successCount) {
+				html += `
+					<div class="detailed-stats">
+						<div class="stat-row">
+							<div class="stat-item success">
+								<span class="stat-icon">✅</span>
+								<span class="stat-number">${archive.stats.successCount}</span>
+								<span class="stat-desc">Réussites</span>
+							</div>
+							<div class="stat-item failure">
+								<span class="stat-icon">❌</span>
+								<span class="stat-number">${archive.stats.failureCount}</span>
+								<span class="stat-desc">Échecs</span>
+							</div>
+				`;
+				
+				if (archive.stats.successCount > 0) {
+					html += `
+							<div class="stat-item average">
+								<span class="stat-icon">⏱️</span>
+								<span class="stat-number">${archive.stats.averageTime}s</span>
+								<span class="stat-desc">Temps moyen</span>
+							</div>
+							<div class="stat-item average">
+								<span class="stat-icon">🎯</span>
+								<span class="stat-number">${archive.stats.averageAttempts}</span>
+								<span class="stat-desc">Essais moyens</span>
+							</div>
+					`;
+				}
+				
+				html += `
+						</div>
+					</div>
+				`;
+			}
+
+			html += `
+					</div>
+					<div class="archive-stats">
+						<div class="stat-card">
+							<span class="stat-value">${archive.totalPlayers}</span>
+							<span class="stat-label">Joueur${archive.totalPlayers > 1 ? 's' : ''}</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="content-grid">
+					<div class="leaderboards-section">
+						<div class="leaderboard fastest">
+							<h3>⚡ Classement par temps (${archive.stats.fastest.length})</h3>
+							<div class="leaderboard-scroll-container">
+								<div class="leaderboard-content">
+			`;
+
+			// Add fastest players
+			if (archive.stats.fastest.length > 0) {
+				archive.stats.fastest.forEach((player, index) => {
+					const rank = index + 1;
+					const failed = player.attempts === 7;
+					html += `
+						<div class="player-row ${failed ? 'failed' : ''}" data-rank="${rank}">
+							<span class="rank">${rank}</span>
+							<span class="player-name">${player.login}</span>
+							${failed ? 
+								`<span class="score failed">❌ Échec (${player.time}s)</span>` :
+								`<span class="score">⏱️ ${player.time}s (${player.attempts} essai${player.attempts > 1 ? 's' : ''})</span>`
+							}
+						</div>
+					`;
+				});
+			} else {
+				html += `<div class="no-data">Aucune donnée</div>`;
+			}
+
+			html += `
+								</div>
+							</div>
+						</div>
+
+						<div class="leaderboard fewest">
+							<h3>🎯 Classement par essais (${archive.stats.fewest_attempts.length})</h3>
+							<div class="leaderboard-scroll-container">
+								<div class="leaderboard-content">
+			`;
+
+			// Add fewest attempts players
+			if (archive.stats.fewest_attempts.length > 0) {
+				archive.stats.fewest_attempts.forEach((player, index) => {
+					const rank = index + 1;
+					const failed = player.attempts === 7;
+					html += `
+						<div class="player-row ${failed ? 'failed' : ''}" data-rank="${rank}">
+							<span class="rank">${rank}</span>
+							<span class="player-name">${player.login}</span>
+							${failed ? 
+								`<span class="score failed">❌ Échec (${player.time}s)</span>` :
+								`<span class="score">🎯 ${player.attempts} essai${player.attempts > 1 ? 's' : ''} (${player.time}s)</span>`
+							}
+						</div>
+					`;
+				});
+			} else {
+				html += `<div class="no-data">Aucune donnée</div>`;
+			}
+
+			html += `
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="all-players-section">
+						<h3>👥 Tous les participants par ordre chronologique (${archive.totalPlayers})</h3>
+						<div class="players-grid">
+			`;
+
+			// Add all players
+			if (archive.stats.allPlayers) {
+				archive.stats.allPlayers.forEach(player => {
+					const failed = player.attempts === 7;
+					html += `
+						<div class="player-card ${failed ? 'failed' : ''}">
+							<div class="player-info">
+								<div class="player-name">${player.login}</div>
+								${failed ? 
+									`<div class="player-result failed">❌ Échec après 6 essais</div>
+									 <div class="player-time">⏱️ ${player.time}s</div>` :
+									`<div class="player-stats">
+										<span class="attempts">🎯 ${player.attempts} essai${player.attempts > 1 ? 's' : ''}</span>
+										<span class="time">⏱️ ${player.time}s</span>
+									 </div>`
+								}
+							</div>
+						</div>
+					`;
+				});
+			}
+
+			html += `
+						</div>
+					</div>
+				</div>
+			`;
+
+			mainContent.innerHTML = html;
+
+			// Re-apply animations
+			setTimeout(() => {
+				const playerRows = document.querySelectorAll('.player-row');
+				playerRows.forEach((row, index) => {
+					row.style.animationDelay = `${0.1 + (index * 0.05)}s`;
+				});
+			}, 50);
+		}
+
 		// Sélection automatique de la première date
 		function selectFirstDate() {
 			const firstDateLink = document.querySelector('.date-item');
 			if (firstDateLink) {
-				window.location.href = firstDateLink.href;
+				const date = firstDateLink.dataset.date;
+				loadArchiveDate(date);
 			}
 		}
 
