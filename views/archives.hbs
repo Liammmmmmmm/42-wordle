@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" type="image/x-icon" href="/wordle/favicon.svg">
-	<title>42 Wordle - Archives</title>
+	<title>{{__ "archives.title"}}</title>
 	<link rel="stylesheet" href="/archives/archives.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 		<!-- === SIDEBAR === -->
 		<div class="sidebar">
 			<div class="sidebar-header">
-				<h2>📚 Archives</h2>
+				<h2>{{__ "archives.header"}}</h2>
 				<div class="navigation-buttons">
 					<a href="/" class="nav-btn home-btn">🏠</a>
 					<a href="/wordle" class="nav-btn play-btn">🎮</a>
@@ -22,7 +22,7 @@
 			<!-- Liste des dates disponibles -->
 			{{#if availableDates.length}}
 				<div class="dates-list">
-					<h3>Dates disponibles</h3>
+					<h3>{{__ "archives.available_dates"}}</h3>
 					<div class="dates-container">
 						{{#each availableDates}}
 							<a href="#"
@@ -37,25 +37,25 @@
 				</div>
 			{{else}}
 				<div class="no-dates">
-					<p>Aucune archive disponible</p>
-					<a href="/wordle" class="play-now-btn">Jouer maintenant</a>
+					<p>{{__ "archives.no_dates"}}</p>
+					<a href="/wordle" class="play-now-btn">{{__ "archives.play_now"}}</a>
 				</div>
 			{{/if}}
 
 			<!-- Top Streaks dans le footer -->
 			<div class="sidebar-footer">
-				<h3>🔥 Top Streaks</h3>
+				<h3>{{__ "archives.top_streaks"}}</h3>
 				<div class="leaderboard-content">
 					{{#if topStreaks.length}}
 						{{#each topStreaks}}
 							<div class="player-row-streaks">
 								<span class="rank">{{inc @index 1}}</span>
 								<span class="player-name">{{login}}</span>
-								<span class="score">🔥 {{bestStreak}} jour{{#if (gt bestStreak 1)}}s{{/if}}</span>
+								<span class="score">🔥 {{bestStreak}} {{#if (gt bestStreak 1)}}{{@root.__ "archives.days"}}{{else}}{{@root.__ "archives.day"}}{{/if}}</span>
 							</div>
 						{{/each}}
 					{{else}}
-						<div class="no-data">Aucune donnée</div>
+						<div class="no-data">{{__ "archives.no_data"}}</div>
 					{{/if}}
 				</div>
 			</div>
@@ -66,7 +66,7 @@
 			{{#if error}}
 				<!-- Gestion des erreurs -->
 				<div class="error-message">
-					<h2>❌ Erreur</h2>
+					<h2>{{__ "archives.error"}}</h2>
 					<p>{{error}}</p>
 				</div>
 
@@ -74,37 +74,34 @@
 				<!-- En-tête de l'archive sélectionnée -->
 				<div class="archive-header">
 					<div class="archive-title">
-						<h1>📅 {{selectedArchive.displayDate}}</h1>
-						<div class="word-reveal">
-							<span class="word-label">Mot du jour :</span>
-							<span class="word-of-day">{{selectedArchive.wordOfTheDay}}</span>
-						</div>
+						<h1>📅 {{selectedArchive.displayDate}}</h1>					<div class="word-reveal">
+						<span class="word-label">{{__ "archives.word_of_day"}}</span>
+						<span class="word-of-day">{{selectedArchive.wordOfTheDay}}</span>
+					</div>
 
 						<!-- Statistiques détaillées -->
 						{{#if selectedArchive.stats.successCount}}
 							<div class="detailed-stats">
-								<div class="stat-row">
-									<div class="stat-item success">
-										<span class="stat-icon">✅</span>
-										<span class="stat-number">{{selectedArchive.stats.successCount}}</span>
-										<span class="stat-desc">Réussites</span>
+								<div class="stat-row">								<div class="stat-item success">
+									<span class="stat-icon">✅</span>
+									<span class="stat-number">{{selectedArchive.stats.successCount}}</span>
+									<span class="stat-desc">{{__ "archives.successes"}}</span>
+								</div>
+								<div class="stat-item failure">
+									<span class="stat-icon">❌</span>
+									<span class="stat-number">{{selectedArchive.stats.failureCount}}</span>
+									<span class="stat-desc">{{__ "archives.failures"}}</span>
+								</div>
+									{{#if (gt selectedArchive.stats.successCount 0)}}									<div class="stat-item average">
+										<span class="stat-icon">⏱️</span>
+										<span class="stat-number">{{selectedArchive.stats.averageTime}}s</span>
+										<span class="stat-desc">{{__ "archives.average_time"}}</span>
 									</div>
-									<div class="stat-item failure">
-										<span class="stat-icon">❌</span>
-										<span class="stat-number">{{selectedArchive.stats.failureCount}}</span>
-										<span class="stat-desc">Échecs</span>
+									<div class="stat-item average">
+										<span class="stat-icon">🎯</span>
+										<span class="stat-number">{{selectedArchive.stats.averageAttempts}}</span>
+										<span class="stat-desc">{{__ "archives.average_attempts"}}</span>
 									</div>
-									{{#if (gt selectedArchive.stats.successCount 0)}}
-										<div class="stat-item average">
-											<span class="stat-icon">⏱️</span>
-											<span class="stat-number">{{selectedArchive.stats.averageTime}}s</span>
-											<span class="stat-desc">Temps moyen</span>
-										</div>
-										<div class="stat-item average">
-											<span class="stat-icon">🎯</span>
-											<span class="stat-number">{{selectedArchive.stats.averageAttempts}}</span>
-											<span class="stat-desc">Essais moyens</span>
-										</div>
 									{{/if}}
 								</div>
 							</div>
@@ -112,36 +109,33 @@
 					</div>
 
 					<!-- Carte du nombre total de joueurs -->
-					<div class="archive-stats">
-						<div class="stat-card">
-							<span class="stat-value">{{selectedArchive.totalPlayers}}</span>
-							<span class="stat-label">Joueur{{#if (gt selectedArchive.totalPlayers 1)}}s{{/if}}</span>
-						</div>
+					<div class="archive-stats">					<div class="stat-card">
+						<span class="stat-value">{{selectedArchive.totalPlayers}}</span>
+						<span class="stat-label">{{#if (gt selectedArchive.totalPlayers 1)}}{{__ "archives.players"}}{{else}}{{__ "archives.player"}}{{/if}}</span>
+					</div>
 					</div>
 				</div>
 
 				<div class="content-grid">
 					<!-- === LEADERBOARDS AVEC SCROLL === -->
-					<div class="leaderboards-section">
-						<!-- Classement par temps -->
-						<div class="leaderboard fastest">
-							<h3>⚡ Classement par temps ({{selectedArchive.stats.fastest.length}})</h3>
+					<div class="leaderboards-section">					<!-- Classement par temps -->
+					<div class="leaderboard fastest">
+						<h3>{{__ "archives.fastest_ranking"}} ({{selectedArchive.stats.fastest.length}})</h3>
 							<div class="leaderboard-scroll-container">
 								<div class="leaderboard-content">
 									{{#if selectedArchive.stats.fastest.length}}
 										{{#each selectedArchive.stats.fastest}}
 											<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}" data-rank="{{inc @index 1}}">
-												<span class="rank">{{inc @index 1}}</span>
-												<span class="player-name">{{login}}</span>
-												{{#if (eq attempts 7)}}
-													<span class="score failed">❌ Échec ({{time}}s)</span>
-												{{else}}
-													<span class="score">⏱️ {{time}}s ({{attempts}} essai{{#if (gt attempts 1)}}s{{/if}})</span>
-												{{/if}}
+												<span class="rank">{{inc @index 1}}</span>											<span class="player-name">{{login}}</span>
+											{{#if (eq attempts 7)}}
+												<span class="score failed">{{@root.__ "archives.failed"}} ({{time}}s)</span>
+											{{else}}
+												<span class="score">⏱️ {{time}}s ({{attempts}} {{#if (gt attempts 1)}}{{@root.__ "archives.attempts"}}{{else}}{{@root.__ "archives.attempt"}}{{/if}})</span>
+											{{/if}}
 											</div>
 										{{/each}}
 									{{else}}
-										<div class="no-data">Aucune donnée</div>
+										<div class="no-data">{{__ "archives.no_data"}}</div>
 									{{/if}}
 								</div>
 							</div>
@@ -149,23 +143,22 @@
 
 						<!-- Classement par nombre d'essais -->
 						<div class="leaderboard fewest">
-							<h3>🎯 Classement par essais ({{selectedArchive.stats.fewest_attempts.length}})</h3>
+							<h3>{{__ "archives.attempts_ranking"}} ({{selectedArchive.stats.fewest_attempts.length}})</h3>
 							<div class="leaderboard-scroll-container">
 								<div class="leaderboard-content">
 									{{#if selectedArchive.stats.fewest_attempts.length}}
 										{{#each selectedArchive.stats.fewest_attempts}}
 											<div class="player-row {{#if (eq attempts 7)}}failed{{/if}}" data-rank="{{inc @index 1}}">
-												<span class="rank">{{inc @index 1}}</span>
-												<span class="player-name">{{login}}</span>
-												{{#if (eq attempts 7)}}
-													<span class="score failed">❌ Échec ({{time}}s)</span>
-												{{else}}
-													<span class="score">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}} ({{time}}s)</span>
-												{{/if}}
+												<span class="rank">{{inc @index 1}}</span>											<span class="player-name">{{login}}</span>
+											{{#if (eq attempts 7)}}
+												<span class="score failed">{{@root.__ "archives.failed"}} ({{time}}s)</span>
+											{{else}}
+												<span class="score">🎯 {{attempts}} {{#if (gt attempts 1)}}{{@root.__ "archives.attempts"}}{{else}}{{@root.__ "archives.attempt"}}{{/if}} ({{time}}s)</span>
+											{{/if}}
 											</div>
 										{{/each}}
 									{{else}}
-										<div class="no-data">Aucune donnée</div>
+										<div class="no-data">{{__ "archives.no_data"}}</div>
 									{{/if}}
 								</div>
 							</div>
@@ -174,18 +167,18 @@
 
 					<!-- === GRILLE DE TOUS LES PARTICIPANTS === -->
 					<div class="all-players-section">
-						<h3>👥 Tous les participants par ordre chronologique ({{selectedArchive.totalPlayers}})</h3>
+						<h3>{{__ "archives.all_participants"}} ({{selectedArchive.totalPlayers}})</h3>
 						<div class="players-grid">
 							{{#each selectedArchive.stats.allPlayers}}
 								<div class="player-card {{#if (eq attempts 7)}}failed{{/if}}">
 									<div class="player-info">
 										<div class="player-name">{{login}}</div>
 										{{#if (eq attempts 7)}}
-											<div class="player-result failed">❌ Échec après 6 essais</div>
+											<div class="player-result failed">{{@root.__ "archives.failed_after_6"}}</div>
 											<div class="player-time">⏱️ {{time}}s</div>
 										{{else}}
 											<div class="player-stats">
-												<span class="attempts">🎯 {{attempts}} essai{{#if (gt attempts 1)}}s{{/if}}</span>
+												<span class="attempts">🎯 {{attempts}} {{#if (gt attempts 1)}}{{@root.__ "archives.attempts"}}{{else}}{{@root.__ "archives.attempt"}}{{/if}}</span>
 												<span class="time">⏱️ {{time}}s</span>
 											</div>
 										{{/if}}
@@ -200,11 +193,11 @@
 				<!-- État par défaut : aucune archive sélectionnée -->
 				<div class="no-archive-selected">
 					<div class="placeholder-content">
-						<h2>📋 Sélectionnez une date</h2>
-						<p>Choisissez une date dans la sidebar pour voir les archives des parties précédentes</p>
+						<h2>{{__ "archives.select_date"}}</h2>
+						<p>{{__ "archives.select_date_desc"}}</p>
 						{{#if availableDates.length}}
 							<button onclick="selectFirstDate()" class="select-date-btn">
-								Voir la plus récente
+								{{__ "archives.see_latest"}}
 							</button>
 						{{/if}}
 					</div>
@@ -220,6 +213,30 @@
 
 	<!-- === SCRIPTS === -->
 	<script>
+		// Translations object for JavaScript usage
+		const t = {
+			loading: "{{__ "archives.loading"}}",
+			error: "{{__ "archives.error"}}",
+			loadError: "{{__ "archives.load_error"}}",
+			archiveNotFound: "{{__ "archives.archive_not_found"}}",
+			archiveUnavailable: "{{__ "archives.archive_unavailable"}}",
+			wordOfDay: "{{__ "archives.word_of_day"}}",
+			successes: "{{__ "archives.successes"}}",
+			failures: "{{__ "archives.failures"}}",
+			averageTime: "{{__ "archives.average_time"}}",
+			averageAttempts: "{{__ "archives.average_attempts"}}",
+			player: "{{__ "archives.player"}}",
+			players: "{{__ "archives.players"}}",
+			fastestRanking: "{{__ "archives.fastest_ranking"}}",
+			attemptsRanking: "{{__ "archives.attempts_ranking"}}",
+			allParticipants: "{{__ "archives.all_participants"}}",
+			attempt: "{{__ "archives.attempt"}}",
+			attempts: "{{__ "archives.attempts"}}",
+			failed: "{{__ "archives.failed"}}",
+			failedAfter6: "{{__ "archives.failed_after_6"}}",
+			noData: "{{__ "archives.no_data"}}"
+		};
+
 		// Gestion de l'ouverture/fermeture de la sidebar mobile
 		function toggleSidebar() {
 			const sidebar = document.querySelector('.sidebar');
@@ -240,7 +257,7 @@
 				<div style="display: flex; align-items: center; justify-content: center; min-height: 60vh;">
 					<div style="text-align: center; color: #8e9297;">
 						<div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
-						<p>Chargement des archives...</p>
+						<p>${t.loading}</p>
 					</div>
 				</div>
 			`;
@@ -252,7 +269,7 @@
 					if (data.error) {
 						mainContent.innerHTML = `
 							<div class="error-message">
-								<h2>❌ Erreur</h2>
+								<h2>${t.error}</h2>
 								<p>${data.error}</p>
 							</div>
 						`;
@@ -266,8 +283,8 @@
 					console.error('Error loading archive:', error);
 					mainContent.innerHTML = `
 						<div class="error-message">
-							<h2>❌ Erreur</h2>
-							<p>Erreur lors du chargement de l'archive</p>
+							<h2>${t.error}</h2>
+							<p>${t.loadError}</p>
 						</div>
 					`;
 				});
@@ -288,8 +305,8 @@
 				mainContent.innerHTML = `
 					<div class="no-archive-selected">
 						<div class="placeholder-content">
-							<h2>📋 Archive non trouvée</h2>
-							<p>L'archive pour cette date n'est pas disponible</p>
+							<h2>${t.archiveNotFound}</h2>
+							<p>${t.archiveUnavailable}</p>
 						</div>
 					</div>
 				`;
@@ -302,7 +319,7 @@
 					<div class="archive-title">
 						<h1>📅 ${archive.displayDate}</h1>
 						<div class="word-reveal">
-							<span class="word-label">Mot du jour :</span>
+							<span class="word-label">${t.wordOfDay}</span>
 							<span class="word-of-day">${archive.wordOfTheDay}</span>
 						</div>
 			`;
@@ -315,12 +332,12 @@
 							<div class="stat-item success">
 								<span class="stat-icon">✅</span>
 								<span class="stat-number">${archive.stats.successCount}</span>
-								<span class="stat-desc">Réussites</span>
+								<span class="stat-desc">${t.successes}</span>
 							</div>
 							<div class="stat-item failure">
 								<span class="stat-icon">❌</span>
 								<span class="stat-number">${archive.stats.failureCount}</span>
-								<span class="stat-desc">Échecs</span>
+								<span class="stat-desc">${t.failures}</span>
 							</div>
 				`;
 				
@@ -329,12 +346,12 @@
 							<div class="stat-item average">
 								<span class="stat-icon">⏱️</span>
 								<span class="stat-number">${archive.stats.averageTime}s</span>
-								<span class="stat-desc">Temps moyen</span>
+								<span class="stat-desc">${t.averageTime}</span>
 							</div>
 							<div class="stat-item average">
 								<span class="stat-icon">🎯</span>
 								<span class="stat-number">${archive.stats.averageAttempts}</span>
-								<span class="stat-desc">Essais moyens</span>
+								<span class="stat-desc">${t.averageAttempts}</span>
 							</div>
 					`;
 				}
@@ -350,7 +367,7 @@
 					<div class="archive-stats">
 						<div class="stat-card">
 							<span class="stat-value">${archive.totalPlayers}</span>
-							<span class="stat-label">Joueur${archive.totalPlayers > 1 ? 's' : ''}</span>
+							<span class="stat-label">${archive.totalPlayers > 1 ? t.players : t.player}</span>
 						</div>
 					</div>
 				</div>
@@ -358,7 +375,7 @@
 				<div class="content-grid">
 					<div class="leaderboards-section">
 						<div class="leaderboard fastest">
-							<h3>⚡ Classement par temps (${archive.stats.fastest.length})</h3>
+							<h3>${t.fastestRanking} (${archive.stats.fastest.length})</h3>
 							<div class="leaderboard-scroll-container">
 								<div class="leaderboard-content">
 			`;
@@ -373,14 +390,14 @@
 							<span class="rank">${rank}</span>
 							<span class="player-name">${player.login}</span>
 							${failed ? 
-								`<span class="score failed">❌ Échec (${player.time}s)</span>` :
-								`<span class="score">⏱️ ${player.time}s (${player.attempts} essai${player.attempts > 1 ? 's' : ''})</span>`
+								`<span class="score failed">${t.failed} (${player.time}s)</span>` :
+								`<span class="score">⏱️ ${player.time}s (${player.attempts} ${player.attempts > 1 ? t.attempts : t.attempt})</span>`
 							}
 						</div>
 					`;
 				});
 			} else {
-				html += `<div class="no-data">Aucune donnée</div>`;
+				html += `<div class="no-data">${t.noData}</div>`;
 			}
 
 			html += `
@@ -389,7 +406,7 @@
 						</div>
 
 						<div class="leaderboard fewest">
-							<h3>🎯 Classement par essais (${archive.stats.fewest_attempts.length})</h3>
+							<h3>${t.attemptsRanking} (${archive.stats.fewest_attempts.length})</h3>
 							<div class="leaderboard-scroll-container">
 								<div class="leaderboard-content">
 			`;
@@ -404,14 +421,14 @@
 							<span class="rank">${rank}</span>
 							<span class="player-name">${player.login}</span>
 							${failed ? 
-								`<span class="score failed">❌ Échec (${player.time}s)</span>` :
-								`<span class="score">🎯 ${player.attempts} essai${player.attempts > 1 ? 's' : ''} (${player.time}s)</span>`
+								`<span class="score failed">${t.failed} (${player.time}s)</span>` :
+								`<span class="score">🎯 ${player.attempts} ${player.attempts > 1 ? t.attempts : t.attempt} (${player.time}s)</span>`
 							}
 						</div>
 					`;
 				});
 			} else {
-				html += `<div class="no-data">Aucune donnée</div>`;
+				html += `<div class="no-data">${t.noData}</div>`;
 			}
 
 			html += `
@@ -421,7 +438,7 @@
 					</div>
 
 					<div class="all-players-section">
-						<h3>👥 Tous les participants par ordre chronologique (${archive.totalPlayers})</h3>
+						<h3>${t.allParticipants} (${archive.totalPlayers})</h3>
 						<div class="players-grid">
 			`;
 
@@ -434,10 +451,10 @@
 							<div class="player-info">
 								<div class="player-name">${player.login}</div>
 								${failed ? 
-									`<div class="player-result failed">❌ Échec après 6 essais</div>
+									`<div class="player-result failed">${t.failedAfter6}</div>
 									 <div class="player-time">⏱️ ${player.time}s</div>` :
 									`<div class="player-stats">
-										<span class="attempts">🎯 ${player.attempts} essai${player.attempts > 1 ? 's' : ''}</span>
+										<span class="attempts">🎯 ${player.attempts} ${player.attempts > 1 ? t.attempts : t.attempt}</span>
 										<span class="time">⏱️ ${player.time}s</span>
 									 </div>`
 								}
