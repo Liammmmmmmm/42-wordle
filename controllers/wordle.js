@@ -86,6 +86,7 @@ async function getWordOfTheDay(date = null) {
 
 exports.validateWord = async (req, res) => {
 	const word = req.body?.word?.toLowerCase();
+	const players = req.players
 
 	if (!word) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (!words.includes(word)) return (res.status(404).json({ error: true, details: "Invalid word" }));
@@ -103,23 +104,23 @@ exports.validateWord = async (req, res) => {
 	const currentDate = getFormatedDate();
 	
 	// Si le joueur a des données d'un jour différent, les reset
-	if (players_data[userId] && players_data[userId].date !== currentDate) {
-		players_data[userId] = null;
+	if (players[userId] && players[userId].date !== currentDate) {
+		players[userId] = null;
 	}
 
-	if (!players_data[userId] || players_data[userId].attempts === undefined) {
+	if (!players[userId] || players[userId].attempts === undefined) {
 		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
-		players_data[userId] = { 
+		players[userId] = { 
 			start_time: Date.now() - 10 * 1000, 
 			attempts: 0, 
 			date: currentDate 
 		};
 	}
 
-	players_data[userId].attempts++;
+	players[userId].attempts++;
 
 	console.log(`VALIDATE_WORD: ${userId}`);
-	console.log(players_data);
+	console.log(players);
 
 	const dayWord = await getWordOfTheDay();
 
@@ -146,11 +147,11 @@ exports.validateWord = async (req, res) => {
 	}
 
 
-	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players_data[userId].attempts} time ${Math.floor((Date.now() - players_data[userId].start_time) / 1000)}s`);
+	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players[userId].attempts} time ${Math.floor((Date.now() - players[userId].start_time) / 1000)}s`);
 
-	if (word == dayWord || players_data[userId].attempts >= 6) {
-		const timeToComplete = (Date.now() - players_data[userId].start_time) / 1000;
-		const saveResultsResponse = await saveResults(userId, timeToComplete, players_data[userId].attempts, word);
+	if (word == dayWord || players[userId].attempts >= 6) {
+		const timeToComplete = (Date.now() - players[userId].start_time) / 1000;
+		const saveResultsResponse = await saveResults(userId, timeToComplete, players[userId].attempts, word);
 
 		if (saveResultsResponse.error) {
 			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
@@ -165,6 +166,7 @@ exports.validateWord = async (req, res) => {
 exports.startTyping = async (req, res) => {
 	const token = req.cookies?.jwt;
 	let userId;
+	const players = req.players;
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -174,23 +176,23 @@ exports.startTyping = async (req, res) => {
 	}
 
 	console.log(`START_TYPING: ${userId} started typing`);
-	console.log(players_data);
+	console.log(players);
 
 	const currentDate = getFormatedDate();
 	
-	if (players_data[userId] && players_data[userId].date === currentDate) {
+	if (players[userId] && players[userId].date === currentDate) {
 		return res.status(200).json({ error: false, message: "Game already started" });
 	}
 
 	log(`START_TYPING: ${userId} started typing`);
-	players_data[userId] = { 
+	players[userId] = { 
 		start_time: Date.now(), 
 		attempts: 0, 
 		date: currentDate 
 	};
 
 	console.log(`Game started for user ${userId} on date ${currentDate}`);
-	console.log(players_data);
+	console.log(players);
 	
 	return res.status(200).json({ error: false, message: "Game started" });
 }

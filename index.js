@@ -59,8 +59,10 @@ app.set('view engine', 'hbs');
 
 // require('./socket/...');
 
+const players = {};
+
 app.use('/', require('./routes/index'));
-app.use('/api/wordle', require('./routes/wordle'));
+app.use('/api/wordle', require('./routes/wordle')(players));
 app.use('/auth', require('./routes/auth'));
 
 
