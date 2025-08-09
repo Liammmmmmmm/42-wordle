@@ -1,23 +1,12 @@
 const express = require('express');
 const wordleController = require('../controllers/wordle');
 
+const router = express.Router();
 
-module.exports = (players_data) => {
-	const router = express.Router();
-	
-	router.post('/validateword', (req, res, next) => {
-		req.players = players_data;
-		next();
-	},
-	wordleController.validateWord );
+// Suppression de la dépendance à players_data car maintenant géré en DB
+router.post('/validateword', wordleController.validateWord);
+router.post('/starttyping', wordleController.startTyping);
+router.get('/dates', wordleController.getAvailableDates);
+router.get('/archive/:date', wordleController.getArchiveByDate);
 
-	router.post('/starttyping', (req, res, next) => {
-		req.players = players_data;
-		next();
-	},
-	wordleController.startTyping );
-	
-	router.get('/dates', wordleController.getAvailableDates );
-	router.get('/archive/:date', wordleController.getArchiveByDate );
-	return router
-};
+module.exports = router;

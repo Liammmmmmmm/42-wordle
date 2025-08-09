@@ -59,10 +59,11 @@ app.set('view engine', 'hbs');
 
 // require('./socket/...');
 
-const players = {};
+// Suppression de l'objet players car maintenant géré en DB
+// const players = {};
 
 app.use('/', require('./routes/index'));
-app.use('/api/wordle', require('./routes/wordle')(players));
+app.use('/api/wordle', require('./routes/wordle'));
 app.use('/auth', require('./routes/auth'));
 
 

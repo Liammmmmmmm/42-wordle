@@ -6,7 +6,65 @@ const log = require('../log');
 const words = [];
 const small_words = [];
 
-const players_data = {};
+// Suppression de l'objet players_data car remplacé par la DB
+// const players_data = {};
+
+// Fonctions utilitaires pour gérer les parties en cours
+const activeGamesDb = {
+	async getActiveGame(userId, date) {
+		return new Promise((resolve, reject) => {
+			db.get(`SELECT * FROM active_games WHERE user_id = ? AND date = ?`, [userId, date], (err, row) => {
+				if (err) return reject(err);
+				resolve(row);
+			});
+		});
+	},
+
+	async createActiveGame(userId, startTime, date) {
+		return new Promise((resolve, reject) => {
+			db.run(`INSERT OR REPLACE INTO active_games (user_id, start_time, attempts, date) VALUES (?, ?, 0, ?)`, 
+				[userId, startTime, date], function(err) {
+				if (err) return reject(err);
+				resolve({ id: this.lastID });
+			});
+		});
+	},
+
+	async updateActiveGame(userId, date, updates) {
+		return new Promise((resolve, reject) => {
+			const fields = [];
+			const values = [];
+			
+			if (updates.attempts !== undefined) {
+				fields.push('attempts = ?');
+				values.push(updates.attempts);
+			}
+			if (updates.start_time !== undefined) {
+				fields.push('start_time = ?');
+				values.push(updates.start_time);
+			}
+			
+			if (fields.length === 0) return resolve();
+			
+			values.push(userId, date);
+			
+			db.run(`UPDATE active_games SET ${fields.join(', ')} WHERE user_id = ? AND date = ?`, 
+				values, function(err) {
+				if (err) return reject(err);
+				resolve({ changes: this.changes });
+			});
+		});
+	},
+
+	async deleteActiveGame(userId, date) {
+		return new Promise((resolve, reject) => {
+			db.run(`DELETE FROM active_games WHERE user_id = ? AND date = ?`, [userId, date], function(err) {
+				if (err) return reject(err);
+				resolve({ changes: this.changes });
+			});
+		});
+	}
+};
 
 fs.readFile('./words.txt', 'utf8', (err, data) => {
 	if (err) {
@@ -86,7 +144,6 @@ async function getWordOfTheDay(date = null) {
 
 exports.validateWord = async (req, res) => {
 	const word = req.body?.word?.toLowerCase();
-	const players = req.players
 
 	if (!word) return (res.status(400).json({ error: true, details: "Missing parrameter" }));
 	if (!words.includes(word)) return (res.status(404).json({ error: true, details: "Invalid word" }));
@@ -100,73 +157,75 @@ exports.validateWord = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	// Vérifier et initialiser les données du joueur de manière atomique
-	const currentDate = getFormatedDate();
-	
-	// Si le joueur a des données d'un jour différent, les reset
-	if (players[userId] && players[userId].date !== currentDate) {
-		players[userId] = null;
-	}
-
-	if (!players[userId] || players[userId].attempts === undefined) {
-		log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
-		players[userId] = { 
-			start_time: Date.now() - 10 * 1000, 
-			attempts: 0, 
-			date: currentDate 
-		};
-	}
-
-	players[userId].attempts++;
-
-	console.log(`VALIDATE_WORD: ${userId}`);
-	console.log(players);
-
-	const dayWord = await getWordOfTheDay();
-
-	const validation = ["absent", "absent", "absent", "absent", "absent"];
-
-
-	const letterCount = {};
-	for (let letter of dayWord) {
-		letterCount[letter] = (letterCount[letter] || 0) + 1;
-	}
-
-	for (let i = 0; i < 5; i++) {
-		if (word[i] === dayWord[i]) {
-			validation[i] = "correct";
-			letterCount[word[i]]--;
+	try {
+		// Vérifier et initialiser les données du joueur avec la DB
+		const currentDate = getFormatedDate();
+		
+		let activeGame = await activeGamesDb.getActiveGame(userId, currentDate);
+		
+		// Si le joueur n'a pas de partie active, l'initialiser
+		if (!activeGame) {
+			log(`VALIDATE_WORD: ${userId} tried a word without starting the game`);
+			await activeGamesDb.createActiveGame(userId, Date.now() - 10 * 1000, currentDate);
+			activeGame = await activeGamesDb.getActiveGame(userId, currentDate);
 		}
-	}
 
-	for (let i = 0; i < 5; i++) {
-		if (validation[i] === "absent" && letterCount[word[i]] > 0) {
-			validation[i] = "present";
-			letterCount[word[i]]--;
+		// Incrémenter le nombre de tentatives
+		const newAttempts = activeGame.attempts + 1;
+		await activeGamesDb.updateActiveGame(userId, currentDate, { attempts: newAttempts });
+
+		console.log(`VALIDATE_WORD: ${userId}`);
+		console.log(`Active game: attempts=${newAttempts}, start_time=${activeGame.start_time}, date=${currentDate}`);
+
+		const dayWord = await getWordOfTheDay();
+
+		const validation = ["absent", "absent", "absent", "absent", "absent"];
+
+		const letterCount = {};
+		for (let letter of dayWord) {
+			letterCount[letter] = (letterCount[letter] || 0) + 1;
 		}
-	}
 
+		for (let i = 0; i < 5; i++) {
+			if (word[i] === dayWord[i]) {
+				validation[i] = "correct";
+				letterCount[word[i]]--;
+			}
+		}
 
-	log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${players[userId].attempts} time ${Math.floor((Date.now() - players[userId].start_time) / 1000)}s`);
+		for (let i = 0; i < 5; i++) {
+			if (validation[i] === "absent" && letterCount[word[i]] > 0) {
+				validation[i] = "present";
+				letterCount[word[i]]--;
+			}
+		}
 
-	if (word == dayWord || players[userId].attempts >= 6) {
-		const timeToComplete = (Date.now() - players[userId].start_time) / 1000;
-		const saveResultsResponse = await saveResults(userId, timeToComplete, players[userId].attempts, word);
+		log(`VALIDATE_WORD: ${userId} word "${word}" answer "${dayWord}". INFOS: attempts ${newAttempts} time ${Math.floor((Date.now() - activeGame.start_time) / 1000)}s`);
 
-		if (saveResultsResponse.error) {
-			return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
+		if (word == dayWord || newAttempts >= 6) {
+			const timeToComplete = (Date.now() - activeGame.start_time) / 1000;
+			const saveResultsResponse = await saveResults(userId, timeToComplete, newAttempts, word);
+
+			// Supprimer la partie active après la fin du jeu
+			await activeGamesDb.deleteActiveGame(userId, currentDate);
+
+			if (saveResultsResponse.error) {
+				return res.status(502).json({ error: true, validation: validation, details: saveResultsResponse.details });
+			} else {
+				return (res.status(200).json({ error: false, validation: validation, time: timeToComplete }));
+			}
 		} else {
-			return (res.status(200).json({ error: false, validation: validation, time: timeToComplete }));
+			return (res.status(200).json({ error: false, validation: validation, time: null }));
 		}
-	} else {
-		return (res.status(200).json({ error: false, validation: validation, time: null }));
+	} catch (error) {
+		console.error('Error in validateWord:', error);
+		return res.status(500).json({ error: true, details: "Database error" });
 	}
 }
 
 exports.startTyping = async (req, res) => {
 	const token = req.cookies?.jwt;
 	let userId;
-	const players = req.players;
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -175,26 +234,30 @@ exports.startTyping = async (req, res) => {
 		return res.status(401).json({ error: true, details: "Invalid token" });
 	}
 
-	console.log(`START_TYPING: ${userId} started typing`);
-	console.log(players);
+	try {
+		console.log(`START_TYPING: ${userId} started typing`);
 
-	const currentDate = getFormatedDate();
-	
-	if (players[userId] && players[userId].date === currentDate) {
-		return res.status(200).json({ error: false, message: "Game already started" });
+		const currentDate = getFormatedDate();
+		
+		// Vérifier si une partie active existe déjà pour aujourd'hui
+		const existingGame = await activeGamesDb.getActiveGame(userId, currentDate);
+		
+		if (existingGame) {
+			console.log(`Game already started for user ${userId} on date ${currentDate}`);
+			return res.status(200).json({ error: false, message: "Game already started" });
+		}
+
+		// Créer une nouvelle partie active
+		log(`START_TYPING: ${userId} started typing`);
+		await activeGamesDb.createActiveGame(userId, Date.now(), currentDate);
+
+		console.log(`Game started for user ${userId} on date ${currentDate}`);
+		
+		return res.status(200).json({ error: false, message: "Game started" });
+	} catch (error) {
+		console.error('Error in startTyping:', error);
+		return res.status(500).json({ error: true, details: "Database error" });
 	}
-
-	log(`START_TYPING: ${userId} started typing`);
-	players[userId] = { 
-		start_time: Date.now(), 
-		attempts: 0, 
-		date: currentDate 
-	};
-
-	console.log(`Game started for user ${userId} on date ${currentDate}`);
-	console.log(players);
-	
-	return res.status(200).json({ error: false, message: "Game started" });
 }
 
 async function saveResults(userId, time, attempts, word) {
